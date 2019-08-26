@@ -1,0 +1,69 @@
+<!-- The content below is only a placeholder and can be replaced.
+<div style="text-align:center">
+  <h1>
+    Welcome to {{ title }}!
+  </h1>
+  <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
+</div>
+<h2>Here are some links to help you start: </h2>
+<ul>
+  <li>
+    <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
+  </li>
+  <li>
+    <h2><a target="_blank" rel="noopener" href="https://angular.io/cli">CLI Documentation</a></h2>
+  </li>
+  <li>
+    <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
+  </li>
+</ul>
+ -->
+ <h1>Input Title</h1>
+ <input type="text" name="query" #query>
+ <button (click)="searchDOI(query)"> Get</button>
+
+ <!-- <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+  <ng-container matColumnDef="title">
+    <th mat-header-cell *matHeaderCellDef> Tittle </th>
+    <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+  </ng-container>
+
+
+  <ng-container matColumnDef="DOI">
+    <th mat-header-cell *matHeaderCellDef> DOI </th>
+    <td mat-cell *matCellDef="let element"> {{element.DOI}} </td>
+  </ng-container>
+
+
+  <ng-container matColumnDef="reference_number">
+    <th mat-header-cell *matHeaderCellDef> Number of references </th>
+    <td mat-cell *matCellDef="let element"> {{element.reference_number}} </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table> -->
+
+<table>
+  <tr>
+    <th>Title</th>
+    <th>DOI</th>
+    <th>Number of references</th>
+  </tr>
+  <tr *ngFor="let item of result">
+    <td>{{item['title']}}</td>
+    <td>{{item['DOI']}}</td>
+    <td>{{item['is-referenced-by-count']}}</td>
+  </tr>
+</table>
+
+<h1>Input DOI</h1>
+<input type="text" name="queryMetadata" #queryMetadata>
+<button (click)="searchMetadata(queryMetadata)"> Get</button>
+
+<ul *ngFor="let item of metadata">
+  <li >
+    Cited by {{item}}
+  </li>
+</ul>
