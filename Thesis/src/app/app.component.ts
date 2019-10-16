@@ -31,7 +31,7 @@ export class AppComponent {
 
   result: string[];
   metadata: string[];
-  alldata: any;
+  doi: any;
 
   constructor(private httpClient: HttpClient) {}
 
@@ -52,49 +52,27 @@ export class AppComponent {
     .subscribe(response => {
       console.log(response);
       this.metadata = response[0].citation.split(';');
-      this.alldata = this.metadata;
+      this.doi = DOI.value;
       console.log(this.metadata);
     });
   }
 
   plot() {
-    // tslint:disable-next-line: only-arrow-functions
-    // (function($) {
-      // tslint:disable-next-line: only-arrow-functions
-      $(document).ready(() => {
+    console.log('Hello from jQuery!');
+    var nodes = new vis.DataSet();
+    var edges = new vis.DataSet([]);
+    nodes.add({id: this.doi, label: this.doi});
+    for (let i of this.metadata) {
+      nodes.add({id: i, label: i});
+      edges.add({from: i, to: this.doi});
+    }
 
-        console.log('Hello from jQuery!');
-        var t = $(this).text();
-        var nodes = new vis.DataSet([
-          {id: 1, label: 'Node 1'},
-          {id: 2, label: 'Node 2'},
-          {id: 3, label: 'Node 3'},
-          {id: 4, label: 'Node 4'},
-          {id: 5, label: 'Node 5'}
-        ]);
-        // console.log(nodes1);
-        console.log(nodes);
-
-        // create an array with edges
-        var edges = new vis.DataSet([
-        ]);
-
-        // create a network
-        var container = document.getElementById('mynetwork');
-
-        // provide the data in the vis format
-        var data = {
-          nodes: nodes,
-          edges: edges
-        };
-        var options = {};
-
-        // initialize your network!
-        var network = new vis.Network(container, data, options);
-      });
-    // })(jQuery);
+    var container = document.getElementById('mynetwork');
+    var data = {
+      nodes: nodes,
+      edges: edges
+    };
+    var options = {};
+    var network = new vis.Network(container, data, options);
   }
-
-
-
 }
