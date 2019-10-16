@@ -25,7 +25,11 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": [],
+            "scripts": [
+              "src/js/vis-network.js",
+              "src/js/script.js",
+              "node_modules/jquery/dist/jquery.min.js"
+            ],
             "es5BrowserSupport": true
           },
           "configurations": {
@@ -82,7 +86,11 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": [],
+            "scripts": [
+              "src/js/vis-network.js",
+              "src/js/script.js",
+              "node_modules/jquery/dist/jquery.min.js"
+            ],
             "assets": [
               "src/favicon.ico",
               "src/assets"
