@@ -61,15 +61,14 @@
 <h1>Input DOI</h1>
 <input type="text" name="queryMetadata" value="10.1038/nphys1170" #queryMetadata>
 <!-- <button (click)="searchMetadata(queryMetadata)"> Get</button> -->
-<button (click)="begin_search(queryMetadata)"> Get</button>
-<button (click)="process_queue()"> Process queue</button>
+<button (click)="doSearch(queryMetadata)"> Get</button>
+<!-- <button (click)="process_queue()"> Process queue</button> -->
 
-<ul *ngFor="let item of metadata">
+<!-- <ul *ngFor="let item of metadata">
   <li >
     Cited by {{item}}
   </li>
-</ul>
+</ul> -->
 
 <button (click)="plot_graph()"> Plot</button>
-<!-- <button (click)="plot()"> Plot typescript</button> -->
 <!-- <button onclick=plot()> Plot js</button> -->
