@@ -7,7 +7,7 @@ declare var vis: any;
 // declare var queue: Array<string>;
 let queue = [];
 let node_id = [];
-let data: IHash = {};
+let alldata: IHash = {};
 let mapping: IHash = {};
 let stop = true;
 
@@ -31,7 +31,7 @@ export class SearchService {
   begin_search(DOI: HTMLInputElement) {
     queue.push(DOI.value);
     this.process_queue();
-    console.log(queue);
+    // console.log(queue);
   }
 
   process_queue() {
@@ -40,7 +40,7 @@ export class SearchService {
         var current_DOI = queue.pop();
         this.counter += 1;
         this.process_DOI(current_DOI).then(() => {
-          console.log("Loop ran");
+          // console.log("Loop ran");
           this.process_queue();
         });
       }
@@ -56,20 +56,22 @@ export class SearchService {
       .toPromise()
       .then(
         response => {
-          console.log(response);
-          if (data[DOI] == null) {
-            data[DOI] = response;
-          }
-          if (mapping[DOI] == null) {
-            mapping[DOI] = [];
-            node_id.push(DOI);
-          }
-          if (response[0].citation.length != 0) {
-            var citations = response[0].citation.split(';');
-            for (let i of citations) {
-              i = i.replace(/\s/g, '');
-              queue.push(i);
-              mapping[DOI].push(i);
+          if (response[0]) {
+            // console.log(response[0]);
+            if (alldata[DOI] == null) {
+              alldata[DOI] = response[0];
+            }
+            if (mapping[DOI] == null) {
+              mapping[DOI] = [];
+              node_id.push(DOI);
+            }
+            if (response[0].citation.length != 0) {
+              var citations = response[0].citation.split(';');
+              for (let i of citations) {
+                i = i.replace(/\s/g, '');
+                queue.push(i);
+                mapping[DOI].push(i);
+              }
             }
           }
           resolve();
@@ -131,74 +133,24 @@ export class AppComponent {
   //     console.log(this.metadata);
   //   });
   // }
-
-  // plot() {
-  //   console.log('Starting to plot');
-  //   var nodes = new vis.DataSet();
-  //   var edges = new vis.DataSet([]);
-  //   nodes.add({id: this.doi, label: this.doi});
-  //   for (let i of this.metadata) {
-  //     nodes.add({id: i, label: i});
-  //     edges.add({from: i, to: this.doi});
-  //   }
-
-  //   var container = document.getElementById('mynetwork');
-  //   var data = {
-  //     nodes: nodes,
-  //     edges: edges
-  //   };
-  //   var options = {};
-  //   var network = new vis.Network(container, data, options);
-  // }
-
-// newwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
-  // async process_DOI(DOI: string) {
-  //   await this.httpClient.get(`https://opencitations.net/index/coci/api/v1/metadata/${DOI}`)
-  //   .subscribe(response => {
-  //     console.log(response);
-  //     var citations = response[0].citation.split(';');
-  //     if (data[DOI] == null) {
-  //       data[DOI] = response;
-  //     }
-  //     if (mapping[DOI] == null) {
-  //       mapping[DOI] = [];
-  //       node_id.push(DOI);
-  //     }
-  //     for (let i of citations) {
-  //       i = i.replace(/\s/g, "");
-  //       queue.push(i);
-  //       mapping[DOI].push(i);
-  //     }
-  //   });
-  // }
-
-
-
-  // async process_queue() {
-  //   var quota = 300;
-  //   var counter = 0
-  //   while (queue.length != 0 && counter < quota) {
-  //     var current_DOI = queue.pop();
-  //     await this.process_DOI(current_DOI);
-  //     counter += 1;
-  //     console.log("Loop ran");
-  //   }
-  //   console.log("DONE");
-  // }
-
-  // async begin_search(DOI: HTMLInputElement) {
-  //   queue.push(DOI.value);
-  //   await this.process_queue();
-  //   console.log(queue);
-  // }
+  getString(dataTuple: any) {
+    let res = '';
+    res = res + 'DOI:' + dataTuple.doi + '<br/>';
+    res = res + 'Title:' + dataTuple.title + '<br/>';
+    res = res + 'Author:' + dataTuple.author + '<br/>';
+    res = res + 'Volume:' + dataTuple.volume + '<br/>';
+    res = res + 'Year:' + dataTuple.year + '<br/>';
+    return res;
+  }
 
   plot_graph() {
     console.log('Starting to plot');
     var nodes = new vis.DataSet();
     var edges = new vis.DataSet([]);
-
+    console.log(alldata);
     for (let i of node_id) {
-      nodes.add({id: i, label: " "});
+      nodes.add({id: i, label: '', title: this.getString(alldata[i]), group: Math.floor(alldata[i].year / 5)});
+      //Math.floor((alldata[i].year % 2000) % 5)
       for (let j of mapping[i]) {
         edges.add({from: i, to: j});
       }
@@ -209,7 +161,38 @@ export class AppComponent {
       nodes: nodes,
       edges: edges
     };
-    var options = {};
+    var options = {
+      nodes: {
+        shape: "dot",
+        scaling: {
+          min: 1,
+          max: 1
+        },
+        font: {
+          size: 12,
+          face: "Tahoma"
+        }
+      },
+      edges: {
+        color: { inherit: true },
+        width: 1,
+        smooth: {
+          type: "continuous"
+        }
+      },
+      physics: {
+        forceAtlas2Based: {
+          gravitationalConstant: -26,
+          centralGravity: 0.005,
+          springLength: 230,
+          springConstant: 0.18
+        },
+        maxVelocity: 146,
+        solver: "forceAtlas2Based",
+        timestep: 0.35,
+        stabilization: { iterations: 150 }
+      }
+    };
     var network = new vis.Network(container, data, options);
   }
 }
