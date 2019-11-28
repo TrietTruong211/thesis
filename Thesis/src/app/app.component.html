@@ -1,28 +1,4 @@
-<!-- The content below is only a placeholder and can be replaced.
-<div style="text-align:center">
-  <h1>
-    Welcome to {{ title }}!
-  </h1>
-  <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
-</div>
-<h2>Here are some links to help you start: </h2>
-<ul>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://angular.io/cli">CLI Documentation</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-  </li>
-</ul>
- -->
- <h1>Input Title</h1>
- <input type="text" name="query" #query>
- <button (click)="searchDOI(query)"> Get</button>
-
- <!-- <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+<!-- <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
   <ng-container matColumnDef="title">
     <th mat-header-cell *matHeaderCellDef> Tittle </th>
@@ -45,6 +21,9 @@
   <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 </table> -->
 
+<!-- <h1>Input Title</h1>
+<input type="text" name="query" #query>
+<button (click)="searchDOI(query)"> Get</button>
 <table>
   <tr>
     <th>Title</th>
@@ -56,20 +35,41 @@
     <td>{{item['DOI']}}</td>
     <td>{{item['is-referenced-by-count']}}</td>
   </tr>
-</table>
+</table> -->
+<div id="nav_area">
+  <h1 id="title">Citation Visualizer</h1>
+  <ul id="nav_bar">
+    <li>
+      <a target="_blank" rel="noopener" href="https://angular.io/tutorial">Home</a>
+    </li>
+    <li>
+      <a target="_blank" rel="noopener" href="https://angular.io/cli">About</a>
+    </li>
+    <li>
+      <a target="_blank" rel="noopener" href="https://blog.angular.io/">Feedback</a>
+    </li>
+  </ul>
+</div>
 
-<h1>Input DOI</h1>
-<p>Example: 10.1038/nphys1170</p>
-<input type="text" name="queryMetadata" value="10.1210/edrv-16-1-3" #queryMetadata>
-<!-- <button (click)="searchMetadata(queryMetadata)"> Get</button> -->
-<button (click)="doSearch(queryMetadata)"> Get</button>
-<!-- <button (click)="process_queue()"> Process queue</button> -->
+<div id="search_area">
+  <h1>Input DOI</h1>
+  <p>Example: 10.1038/nphys1170</p>
+  <div id="search_bar">
+    <input id="search_bar_input" type="text" name="queryMetadata" value="10.1210/edrv-16-1-3" #queryMetadata>
+    <button (click)="doSearch(queryMetadata)"> Get</button>
+    <button (click)="plot_graph()"> Plot</button>
+  </div>
+</div>
 
-<!-- <ul *ngFor="let item of metadata">
-  <li >
-    Cited by {{item}}
-  </li>
-</ul> -->
+<div id="main_area">
+  <div id="results_area" class="main_area_item">
 
-<button (click)="plot_graph()"> Plot</button>
-<!-- <button onclick=plot()> Plot js</button> -->
+  </div>
+  <div id="graph_area" class="main_area_item">
+    <div id="mynetwork"></div>
+  </div>
+  <div id="options_area" class="main_area_item">
+
+  </div>
+</div>
+
