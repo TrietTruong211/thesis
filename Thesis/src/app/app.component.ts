@@ -11,7 +11,7 @@ let alldata: IHash = {};
 let mapping: IHash = {};
 let stop = true;
 
-// service
+// search service to get 
 @Injectable()
 export class SearchService {
   apiRoot: string = 'https://opencitations.net/index/coci/api/v1/metadata';
@@ -100,6 +100,10 @@ export interface SearchResult {
 
 }
 
+@Injectable()
+export class PlottingService {
+
+}
 
 @Component({
   selector: 'app-root',
@@ -108,38 +112,60 @@ export interface SearchResult {
 })
 
 export class AppComponent {
+  displayedColumns: string[] = ['title', 'DOI', 'reference_number'];
+
+  constructor(private service: SearchService) {}
+
   foods = [
     {value: 'steak-0', viewValue: 'Steak'},
     {value: 'pizza-1', viewValue: 'Pizza'},
     {value: 'tacos-2', viewValue: 'Tacos'}
   ];
 
-  displayedColumns: string[] = ['title', 'DOI', 'reference_number'];
+  dataSortingOptions = [
+    {value: 'publishTime', viewValue: 'Publish Time'},
+    {value: 'noOfCitation', viewValue: 'Popularity'},
+    {value: 'author', viewValue: 'Author'},
+    {value: 'publisher', viewValue: 'Publisher'},
+    {value: 'affiliation', viewValue: 'Affiliation'}
+  ]
 
-  constructor(private service: SearchService) {}
+  noOfNodes = [
+    {value: '10', viewValue: '10'},
+    {value: '50', viewValue: '50'},
+    {value: '100', viewValue: '100'},
+    {value: '300', viewValue: '300'}
+  ]
 
+  colorOptions = [
+    {value: 'default', viewValue: 'Default'},
+    {value: 'customize', viewValue: 'Customize'}
+  ]
+
+  
+  // searchDOI(title: HTMLInputElement) {
+    //   this.httpClient.get(`https://api.crossref.org/works?filter=has-full-text:true&mailto=centory98@gmail.com&query.title=${title.value}`)
+    //   .subscribe(response => {
+      //     console.log(response);
+      //     this.result = response['message']['items'];
+      //     console.log(this.result);
+      //   });
+      // }
+      
+      // searchMetadata(DOI: HTMLInputElement) {
+        //   this.httpClient.get(`https://opencitations.net/index/coci/api/v1/metadata/${DOI.value}`)
+        //   .subscribe(response => {
+          //     console.log(response);
+          //     this.metadata = response[0].citation.split(';');
+          //     this.doi = DOI.value;
+          //     console.log(this.metadata);
+          //   });
+          // }
+          
   doSearch(DOI: HTMLInputElement) {
     this.service.begin_search(DOI);
   }
-
-  // searchDOI(title: HTMLInputElement) {
-  //   this.httpClient.get(`https://api.crossref.org/works?filter=has-full-text:true&mailto=centory98@gmail.com&query.title=${title.value}`)
-  //   .subscribe(response => {
-  //     console.log(response);
-  //     this.result = response['message']['items'];
-  //     console.log(this.result);
-  //   });
-  // }
-
-  // searchMetadata(DOI: HTMLInputElement) {
-  //   this.httpClient.get(`https://opencitations.net/index/coci/api/v1/metadata/${DOI.value}`)
-  //   .subscribe(response => {
-  //     console.log(response);
-  //     this.metadata = response[0].citation.split(';');
-  //     this.doi = DOI.value;
-  //     console.log(this.metadata);
-  //   });
-  // }
+          
   getString(dataTuple: any) {
     let res = '';
     res = res + 'DOI:' + dataTuple.doi + '<br/>';

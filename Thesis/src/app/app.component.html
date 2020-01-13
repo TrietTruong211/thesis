@@ -37,16 +37,6 @@
   </tr>
 </table> -->
 
-<h4>Basic mat-select</h4>
-<mat-form-field>
-  <mat-label>Favorite food</mat-label>
-  <mat-select>
-    <mat-option *ngFor="let food of foods" [value]="food.value">
-      {{food.viewValue}}
-    </mat-option>
-  </mat-select>
-</mat-form-field>
-
 <div id="nav_area">
   <h1 id="title">Citation Visualizer</h1>
   <ul id="nav_bar">
@@ -80,45 +70,34 @@
     <div id="mynetwork"></div>
   </div>
   <div id="options_area" class="main_area_item">
-      <h4>Basic mat-select</h4>
+      <h4>Data Sorting</h4>
       <mat-form-field>
-        <mat-label>Favorite food</mat-label>
+        <mat-label>Sort data according to </mat-label>
         <mat-select>
-          <mat-option *ngFor="let food of foods" [value]="food.value">
-            {{food.viewValue}}
+          <mat-option *ngFor="let option of dataSortingOptions" [value]="option.value">
+            {{option.viewValue}}
           </mat-option>
         </mat-select>
       </mat-form-field>
-    <!-- <h4>Data</h4>
-    <mat-form-field>
-      <mat-label>Data Sorting</mat-label>
-      <select matNativeControl required>
-        <option value="publishTime">Publish Time</option>
-        <option value="noOfCitation">Popularity</option>
-        <option value="author">Author</option>
-        <option value="publisher">Publisher</option>
-        <option value="affiliation">Affiliation</option>
-      </select>
-    </mat-form-field>
 
-    <h4>No Of Nodes</h4>
-    <mat-form-field>
-      <mat-label>Max Nodes</mat-label>
-      <select matNativeControl required>
-        <option value="max300">300</option>
-        <option value="max100">100</option>
-        <option value="max50">50</option>
-        <option value="max10">10</option>
-      </select>
-    </mat-form-field>
+      <h4>Number Of Nodes</h4>
+      <mat-form-field>
+        <mat-label>Number of nodes </mat-label>
+        <mat-select>
+          <mat-option *ngFor="let option of noOfNodes" [value]="option.value">
+            {{option.viewValue}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
 
-    <h4>Cluster Color</h4>
-    <mat-form-field>
-      <mat-label>Select Style</mat-label>
-      <mat-select>
-        <mat-option value="auto">Auto</mat-option>
-        <mat-option value="customize">Customize</mat-option>
-      </mat-select>
-    </mat-form-field> -->
+      <h4>Color</h4>
+      <mat-form-field>
+        <mat-label>Styling for graph</mat-label>
+        <mat-select>
+          <mat-option *ngFor="let option of colorOptions" [value]="option.value">
+            {{option.viewValue}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
   </div>
 </div>
