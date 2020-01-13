@@ -35,6 +35,7 @@ export class SearchService {
   }
 
   process_queue() {
+    console.log("Process queue running");
     if (queue.length != 0 && this.counter < this.quota) {
       while (queue.length != 0 && this.counter < this.quota) {
         var current_DOI = queue.pop();
@@ -50,6 +51,7 @@ export class SearchService {
   }
 
   process_DOI(DOI: string) {
+    console.log("Process DOI running");
     let promise = new Promise((resolve, reject) => {
       let apiURL = `${this.apiRoot}/${DOI}`;
       this.httpclient.get(apiURL)
@@ -81,6 +83,7 @@ export class SearchService {
         }
       );
     });
+    console.log("Process DOI done");
     return promise;
   }
 
@@ -104,9 +107,13 @@ export interface SearchResult {
   styleUrls: ['./app.component.css']
 })
 
-
 export class AppComponent {
-  // displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
+  foods = [
+    {value: 'steak-0', viewValue: 'Steak'},
+    {value: 'pizza-1', viewValue: 'Pizza'},
+    {value: 'tacos-2', viewValue: 'Tacos'}
+  ];
+
   displayedColumns: string[] = ['title', 'DOI', 'reference_number'];
 
   constructor(private service: SearchService) {}
@@ -147,10 +154,11 @@ export class AppComponent {
     console.log('Starting to plot');
     var nodes = new vis.DataSet();
     var edges = new vis.DataSet([]);
-    console.log(alldata);
+    // console.log(alldata);
     for (let i of node_id) {
-      nodes.add({id: i, label: '', title: this.getString(alldata[i]), group: Math.floor(alldata[i].year / 5)});
+      nodes.add({id: i, label: '', title: this.getString(alldata[i]) + 'Group:' + Math.floor(alldata[i].year / 5), group: Math.floor(alldata[i].year / 5)});
       //Math.floor((alldata[i].year % 2000) % 5)
+      console.log (Math.floor(alldata[i].year / 5));
       for (let j of mapping[i]) {
         edges.add({from: i, to: j});
       }
@@ -181,18 +189,48 @@ export class AppComponent {
         }
       },
       physics: {
+        // barnesHut: {
+        //   gravitationalConstant: -80000, 
+        //   springConstant: 0.001, 
+        //   springLength: 200,
+        //   centralGravity: 0.005
+        // },
         forceAtlas2Based: {
-          gravitationalConstant: -26,
+          gravitationalConstant: -16,
           centralGravity: 0.005,
-          springLength: 230,
+          springLength: 500,
           springConstant: 0.18
         },
         maxVelocity: 146,
-        solver: "forceAtlas2Based",
+        // solver: "forceAtlas2Based",
+        solver: "barnesHut",
         timestep: 0.35,
         stabilization: { iterations: 150 }
+      },
+      layout: {
+        randomSeed: undefined,
+        improvedLayout: true,
+        clusterThreshold: 150,
+        // hierarchical: {
+        //   enabled:false,
+        //   levelSeparation: 150,
+        //   nodeSpacing: 100,
+        //   treeSpacing: 200,
+        //   blockShifting: true,
+        //   edgeMinimization: true,
+        //   parentCentralization: true,
+        //   direction: 'UD',
+        //   sortMethod: 'hubsize',
+        //   shakeTowards: 'nodeSpacing'
+        // }
       }
     };
+    var anotherOption = {
+      joinCondition: function(nodeOptions) {
+        return nodeOptions.group === 399;
+      }
+    }
     var network = new vis.Network(container, data, options);
+    // network.clustering.clusterByConnection(node_id[0], anotherOption);
   }
 }

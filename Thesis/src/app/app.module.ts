@@ -2,11 +2,9 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppComponent, SearchService } from './app.component';
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
+import {MatSelectModule} from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -14,10 +12,10 @@ import { MatSortModule } from '@angular/material/sort';
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     HttpClientModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule
+    MatSelectModule
+
   ],
   providers: [SearchService],
   bootstrap: [AppComponent]

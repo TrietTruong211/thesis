@@ -1,91 +1,90 @@
-/* You can add global styles to this file, and also import other style files */
 body {
-  background-color: #6E459D;
-  margin: 0;
+    background-color: #6E459D;
+    margin: 0;
 }
 
 /* Main */
 #main_area {
-  display: flex;
+    display: flex;
 }
-
+  
 .main_area_item {
-  border: 1px solid lightgray;
-  background-color: #7029C0;
+    border: 1px solid lightgray;
+    background-color: #7029C0;
 }
-
+  
 #results_area, #options_area {
-  width: 20%;
-  margin: 20px;
+    width: 20%;
+    margin: 20px;
 }
 
 /* Graph related */
 #graph_area {
-  width: 70%;
-  height: 700px;
-  margin-top: 20px;
-  margin-bottom: 20px;
+    width: 70%;
+    height: 700px;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
-
+  
 #mynetwork {
-  margin: auto;
-  width: auto;
-  height: 100%;
-  background-color: white;
+    margin: auto;
+    width: auto;
+    height: 100%;
+    background-color: white;
 }
 
 /* Search related */
 #search_area {
-  text-align: center;
+    text-align: center;
 }
-
+  
 #search_bar {
-  text-align: center;
-  border-style: solid;
-  border-width: 10px;
-  border-color: white;
-  border-radius: 30px;
-  display: inline-block;
-  background-color: white;
-  margin: 10px auto;
+    text-align: center;
+    border-style: solid;
+    border-width: 10px;
+    border-color: white;
+    border-radius: 30px;
+    display: inline-block;
+    background-color: white;
+    margin: 10px auto;
 }
-
+  
 #search_bar_input {
-  width: 700px;
-  border: none;
-  margin-left: 10px;
+    width: 700px;
+    border: none;
+    margin-left: 10px;
 }
 
 /* Navigation bar */
 #nav_area {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  background-color: #7029C0;
-  border-bottom: 0.1px solid white;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: #7029C0;
+    border-bottom: 0.1px solid white;
 }
-
+  
 #nav_bar {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  width: 30%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    width: 30%;
 }
-
+  
 #nav_bar li {
-  list-style-type: none;
-  align-content: center;
-  display: inline-block;
+    list-style-type: none;
+    align-content: center;
+    display: inline-block;
 }
-
+  
 #nav_bar li a {
-  text-decoration: none;
-  color: white;
-  font-size: 1.4em;
+    text-decoration: none;
+    color: white;
+    font-size: 1.4em;
 }
-
+  
 #title {
-  color: white;
-  padding-left: 20px;
-  margin: 10px;
+    color: white;
+    padding-left: 20px;
+    margin: 10px;
 }
