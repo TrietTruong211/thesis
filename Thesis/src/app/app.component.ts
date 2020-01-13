@@ -102,66 +102,8 @@ export interface SearchResult {
 
 @Injectable()
 export class PlottingService {
-
-}
-
-@Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
-})
-
-export class AppComponent {
-  displayedColumns: string[] = ['title', 'DOI', 'reference_number'];
-
   constructor(private service: SearchService) {}
 
-  foods = [
-    {value: 'steak-0', viewValue: 'Steak'},
-    {value: 'pizza-1', viewValue: 'Pizza'},
-    {value: 'tacos-2', viewValue: 'Tacos'}
-  ];
-
-  dataSortingOptions = [
-    {value: 'publishTime', viewValue: 'Publish Time'},
-    {value: 'noOfCitation', viewValue: 'Popularity'},
-    {value: 'author', viewValue: 'Author'},
-    {value: 'publisher', viewValue: 'Publisher'},
-    {value: 'affiliation', viewValue: 'Affiliation'}
-  ]
-
-  noOfNodes = [
-    {value: '10', viewValue: '10'},
-    {value: '50', viewValue: '50'},
-    {value: '100', viewValue: '100'},
-    {value: '300', viewValue: '300'}
-  ]
-
-  colorOptions = [
-    {value: 'default', viewValue: 'Default'},
-    {value: 'customize', viewValue: 'Customize'}
-  ]
-
-  
-  // searchDOI(title: HTMLInputElement) {
-    //   this.httpClient.get(`https://api.crossref.org/works?filter=has-full-text:true&mailto=centory98@gmail.com&query.title=${title.value}`)
-    //   .subscribe(response => {
-      //     console.log(response);
-      //     this.result = response['message']['items'];
-      //     console.log(this.result);
-      //   });
-      // }
-      
-      // searchMetadata(DOI: HTMLInputElement) {
-        //   this.httpClient.get(`https://opencitations.net/index/coci/api/v1/metadata/${DOI.value}`)
-        //   .subscribe(response => {
-          //     console.log(response);
-          //     this.metadata = response[0].citation.split(';');
-          //     this.doi = DOI.value;
-          //     console.log(this.metadata);
-          //   });
-          // }
-          
   doSearch(DOI: HTMLInputElement) {
     this.service.begin_search(DOI);
   }
@@ -258,5 +200,71 @@ export class AppComponent {
     }
     var network = new vis.Network(container, data, options);
     // network.clustering.clusterByConnection(node_id[0], anotherOption);
+  }
+}
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+
+export class AppComponent {
+  displayedColumns: string[] = ['title', 'DOI', 'reference_number'];
+
+  constructor(private plottingService: PlottingService) {}
+
+  foods = [
+    {value: 'steak-0', viewValue: 'Steak'},
+    {value: 'pizza-1', viewValue: 'Pizza'},
+    {value: 'tacos-2', viewValue: 'Tacos'}
+  ];
+
+  dataSortingOptions = [
+    {value: 'publishTime', viewValue: 'Publish Time'},
+    {value: 'noOfCitation', viewValue: 'Popularity'},
+    {value: 'author', viewValue: 'Author'},
+    {value: 'publisher', viewValue: 'Publisher'},
+    {value: 'affiliation', viewValue: 'Affiliation'}
+  ]
+
+  noOfNodes = [
+    {value: '10', viewValue: '10'},
+    {value: '50', viewValue: '50'},
+    {value: '100', viewValue: '100'},
+    {value: '300', viewValue: '300'}
+  ]
+
+  colorOptions = [
+    {value: 'default', viewValue: 'Default'},
+    {value: 'customize', viewValue: 'Customize'}
+  ]
+
+  
+  // searchDOI(title: HTMLInputElement) {
+    //   this.httpClient.get(`https://api.crossref.org/works?filter=has-full-text:true&mailto=centory98@gmail.com&query.title=${title.value}`)
+    //   .subscribe(response => {
+      //     console.log(response);
+      //     this.result = response['message']['items'];
+      //     console.log(this.result);
+      //   });
+      // }
+      
+  // searchMetadata(DOI: HTMLInputElement) {
+    //   this.httpClient.get(`https://opencitations.net/index/coci/api/v1/metadata/${DOI.value}`)
+    //   .subscribe(response => {
+      //     console.log(response);
+      //     this.metadata = response[0].citation.split(';');
+      //     this.doi = DOI.value;
+      //     console.log(this.metadata);
+      //   });
+  // }
+          
+  doSearch(DOI: HTMLInputElement) {
+    this.plottingService.doSearch(DOI);
+  }
+
+  plot_graph() {
+    this.plottingService.plot_graph();
   }
 }
