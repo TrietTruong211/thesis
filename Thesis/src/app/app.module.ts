@@ -4,7 +4,7 @@ import { NgModule } from '@angular/core';
 import { AppComponent, SearchService, PlottingService } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
-import {MatSelectModule} from '@angular/material';
+import {MatSelectModule, MatListModule} from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -14,8 +14,8 @@ import {MatSelectModule} from '@angular/material';
     BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    MatSelectModule
-
+    MatSelectModule,
+    MatListModule
   ],
   providers: [SearchService, PlottingService],
   bootstrap: [AppComponent]

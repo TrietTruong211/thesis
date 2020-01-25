@@ -64,40 +64,65 @@
 
 <div id="main_area">
   <div id="results_area" class="main_area_item">
-
+    <div id="filter_area">
+      <h4>Filter</h4>
+      <input id="filter_bar" type="text" name="filterKeyword">
+      <h4>1242 items (10 clusters)</h4>
+    </div>
+    <div id="results">
+      <h4>Grouping Results</h4>
+      <div class="results_list" *ngIf="content_ready">
+        <div class="results_item" *ngFor="let key of get_grouping_key()">
+          <h4>{{key}}</h4>
+          <mat-list role="list" *ngIf="content_ready">
+            <mat-list-item *ngFor="let DOI of get_grouping_result(key)">
+              {{DOI}}
+            </mat-list-item>
+          </mat-list>
+        </div>
+      </div>
+    </div>
   </div>
   <div id="graph_area" class="main_area_item">
     <div id="mynetwork"></div>
   </div>
   <div id="options_area" class="main_area_item">
-      <h4>Data Sorting</h4>
+    <div class="option">
+      <h4 class="option_heading">Data Sorting</h4>
       <mat-form-field>
         <mat-label>Sort data according to </mat-label>
-        <mat-select>
+        <mat-select [(value)] = "sortingOption">
           <mat-option *ngFor="let option of dataSortingOptions" [value]="option.value">
             {{option.viewValue}}
           </mat-option>
         </mat-select>
       </mat-form-field>
+    </div>
 
-      <h4>Number Of Nodes</h4>
+    <div class="option">
+      <h4 class="option_heading">Number Of Nodes</h4>
       <mat-form-field>
         <mat-label>Number of nodes </mat-label>
-        <mat-select>
+        <mat-select [(value)]="nodesOption">
           <mat-option *ngFor="let option of noOfNodes" [value]="option.value">
             {{option.viewValue}}
           </mat-option>
         </mat-select>
       </mat-form-field>
+    </div>
 
-      <h4>Color</h4>
+    <div class="option">
+      <h4 class="option_heading">Color</h4>
       <mat-form-field>
         <mat-label>Styling for graph</mat-label>
-        <mat-select>
+        <mat-select [(value)]="colorOption">
           <mat-option *ngFor="let option of colorOptions" [value]="option.value">
             {{option.viewValue}}
           </mat-option>
         </mat-select>
       </mat-form-field>
+    </div>
+
+    <button (click)="plot_graph_options(sortingOption, nodesOption, colorOption)"> Plot with options</button>
   </div>
 </div>

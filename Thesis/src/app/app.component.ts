@@ -5,21 +5,17 @@ declare var $: any;
 declare var vis: any;
 
 // declare var queue: Array<string>;
-let queue = [];
-let node_id = [];
-let alldata: IHash = {};
-let mapping: IHash = {};
-let stop = true;
+let queue = []; //queue for which DOI is being processed
+let node_id = []; //contains all unique DOI as id of each node
+let alldata: IHash = {}; //hash from node_id to all data of that DOI
+let mapping: IHash = {}; //mapping between nodes in the graph
+let grouping_key = [];
+let grouping_map: IHash = {};
 
 // search service to get 
 @Injectable()
 export class SearchService {
   apiRoot: string = 'https://opencitations.net/index/coci/api/v1/metadata';
-  results: Object[];
-  loading: boolean;
-
-  result: string[];
-  metadata: string[];
 
   quota = 300;
   counter = 0;
@@ -118,15 +114,21 @@ export class PlottingService {
     return res;
   }
 
-  plot_graph() {
+  plot_graph(sortingOption: string) {
     console.log('Starting to plot');
     var nodes = new vis.DataSet();
     var edges = new vis.DataSet([]);
     // console.log(alldata);
     for (let i of node_id) {
-      nodes.add({id: i, label: '', title: this.getString(alldata[i]) + 'Group:' + Math.floor(alldata[i].year / 5), group: Math.floor(alldata[i].year / 5)});
-      //Math.floor((alldata[i].year % 2000) % 5)
-      console.log (Math.floor(alldata[i].year / 5));
+      nodes.add({id: i, label: '', title: this.getString(alldata[i]) + 'Group:' + Math.floor(alldata[i].year / 5), group: this.get_group(i, sortingOption)});
+      if (grouping_map[this.get_group(i, sortingOption)] == null) {
+        grouping_key.push(this.get_group(i, sortingOption));
+        grouping_map[this.get_group(i, sortingOption)] = [];
+        grouping_map[this.get_group(i, sortingOption)].push(alldata[i].doi);
+      } else {
+        grouping_map[this.get_group(i, sortingOption)].push(alldata[i].doi);
+      }
+      // console.log (Math.floor(alldata[i].year / 5));
       for (let j of mapping[i]) {
         edges.add({from: i, to: j});
       }
@@ -201,6 +203,120 @@ export class PlottingService {
     var network = new vis.Network(container, data, options);
     // network.clustering.clusterByConnection(node_id[0], anotherOption);
   }
+
+  plot_graph_options(sortingOption: string, nodesOption: number, colorOption: string) {
+    console.log('Starting to plot with options');
+    console.log('Sorting:' + sortingOption);
+    console.log('Number of nodes:' + nodesOption);
+    
+    var nodes = new vis.DataSet();
+    var edges = new vis.DataSet([]);
+    // console.log(alldata);
+
+    var nodeCounter = 0;
+    for (let i of node_id) {
+      nodes.add({id: i, label: '', title: this.getString(alldata[i]) + 'Group:' + Math.floor(alldata[i].year / 5), group: this.get_group(i, sortingOption)});
+      if (grouping_map[this.get_group(i, sortingOption)] == null) {
+        grouping_key.push(this.get_group(i, sortingOption));
+        grouping_map[this.get_group(i, sortingOption)] = [];
+        grouping_map[this.get_group(i, sortingOption)].push(alldata[i].doi);
+      } else {
+        grouping_map[this.get_group(i, sortingOption)].push(alldata[i].doi);
+      }
+      // console.log (Math.floor(alldata[i].year / 5));
+      for (let j of mapping[i]) {
+        edges.add({from: i, to: j});
+      }
+
+      nodeCounter++;
+
+      if (nodeCounter == nodesOption) break;
+    }
+
+    var container = document.getElementById('mynetwork');
+    var data = {
+      nodes: nodes,
+      edges: edges
+    };
+    var options = {
+      nodes: {
+        shape: "dot",
+        scaling: {
+          min: 1,
+          max: 1
+        },
+        font: {
+          size: 12,
+          face: "Tahoma"
+        }
+      },
+      edges: {
+        color: { inherit: true },
+        width: 1,
+        smooth: {
+          type: "continuous"
+        }
+      },
+      physics: {
+        // barnesHut: {
+        //   gravitationalConstant: -80000, 
+        //   springConstant: 0.001, 
+        //   springLength: 200,
+        //   centralGravity: 0.005
+        // },
+        forceAtlas2Based: {
+          gravitationalConstant: -16,
+          centralGravity: 0.005,
+          springLength: 500,
+          springConstant: 0.18
+        },
+        maxVelocity: 146,
+        solver: "forceAtlas2Based",
+        // solver: "barnesHut",
+        timestep: 0.35,
+        stabilization: { iterations: 150 }
+      },
+      layout: {
+        randomSeed: undefined,
+        improvedLayout: true,
+        clusterThreshold: 150,
+        // hierarchical: {
+        //   enabled:false,
+        //   levelSeparation: 150,
+        //   nodeSpacing: 100,
+        //   treeSpacing: 200,
+        //   blockShifting: true,
+        //   edgeMinimization: true,
+        //   parentCentralization: true,
+        //   direction: 'UD',
+        //   sortMethod: 'hubsize',
+        //   shakeTowards: 'nodeSpacing'
+        // }
+      }
+    };
+    var anotherOption = {
+      joinCondition: function(nodeOptions) {
+        return nodeOptions.group === 399;
+      }
+    }
+    var network = new vis.Network(container, data, options);
+    // network.clustering.clusterByConnection(node_id[0], anotherOption);
+  }
+
+  get_group(index: number, selection: String) {
+    switch(selection) {
+      case "publishTime": 
+        return Math.floor(alldata[index].year / 5) * 5 + "-" + (Math.floor(alldata[index].year / 5) * 5 + 4);
+      case "noOfCitation":
+        return alldata[index].citation_count;
+      case "author":
+        return alldata[index].author;
+      case "publisher":
+        return alldata[index].publisher;
+      default:
+        return null;
+    }
+  }
 }
 
 @Component({
@@ -229,10 +345,10 @@ export class AppComponent {
   ]
 
   noOfNodes = [
-    {value: '10', viewValue: '10'},
-    {value: '50', viewValue: '50'},
-    {value: '100', viewValue: '100'},
-    {value: '300', viewValue: '300'}
+    {value: 10, viewValue: '10'},
+    {value: 50, viewValue: '50'},
+    {value: 100, viewValue: '100'},
+    {value: 300, viewValue: '300'}
   ]
 
   colorOptions = [
@@ -240,7 +356,7 @@ export class AppComponent {
     {value: 'customize', viewValue: 'Customize'}
   ]
 
-  
+  content_ready = false;
   // searchDOI(title: HTMLInputElement) {
     //   this.httpClient.get(`https://api.crossref.org/works?filter=has-full-text:true&mailto=centory98@gmail.com&query.title=${title.value}`)
     //   .subscribe(response => {
@@ -249,22 +365,36 @@ export class AppComponent {
       //     console.log(this.result);
       //   });
       // }
-      
-  // searchMetadata(DOI: HTMLInputElement) {
-    //   this.httpClient.get(`https://opencitations.net/index/coci/api/v1/metadata/${DOI.value}`)
-    //   .subscribe(response => {
-      //     console.log(response);
-      //     this.metadata = response[0].citation.split(';');
-      //     this.doi = DOI.value;
-      //     console.log(this.metadata);
-      //   });
-  // }
           
   doSearch(DOI: HTMLInputElement) {
     this.plottingService.doSearch(DOI);
   }
 
   plot_graph() {
-    this.plottingService.plot_graph();
+    this.plottingService.plot_graph("publishTime");
+    this.content_ready = true;
+
+  }
+
+  plot_graph_options(sortingOption: string, nodesOption: number, colorOption: string) {
+    this.plottingService.plot_graph_options(sortingOption, nodesOption, colorOption);
+    this.content_ready = true;
+  }
+
+  get_node_id() {
+    return node_id;
+  }
+
+  get_data(DOI: string) {
+    return alldata[DOI];
+  }
+
+  get_grouping_key() {
+    grouping_key.sort();
+    return grouping_key;
+  }
+
+  get_grouping_result(key: string) {
+    return grouping_map[key];
   }
 }
