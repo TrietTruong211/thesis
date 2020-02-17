@@ -145,6 +145,7 @@ export class PlottingService {
     //Counting total items
     total_items = nodes.length + " items (" + grouping_key.length + " groups)";
 
+    
     var container = document.getElementById('mynetwork');
 
     //Adding legends
@@ -152,18 +153,18 @@ export class PlottingService {
     var y = -container.clientHeight/2;
     var step = 70;
     var legend_counter = 0;
-    for (let group of grouping_key) {
-      nodes.add({
-        id: group,
-        x: x,
-        y: y + step * legend_counter,
-        label: group,
-        group: group,
-        fixed: true,
-        physics: false
-      });
-      legend_counter++;
-    }
+    // for (let group of grouping_key) {
+    //   nodes.add({
+    //     id: group,
+    //     x: x,
+    //     y: y + step * legend_counter,
+    //     label: group,
+    //     group: group,
+    //     fixed: true,
+    //     physics: false
+    //   });
+    //   legend_counter++;
+    // }
     
     var data = {
       nodes: nodes,
@@ -417,6 +418,12 @@ export class AppComponent {
       list.push(element);
     });
     current_network.selectNodes(list);
+  }
+
+  filter_check(DOI: string, keyWords: string) {
+    console.log("Keyword is " + keyWords);
+    if (keyWords == null) return true;
+    return DOI.includes(keyWords) || alldata[DOI].title.includes(keyWords);
   }
 
   get_node_id() {
