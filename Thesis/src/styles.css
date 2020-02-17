@@ -1,6 +1,7 @@
 body {
     background-color: #6E459D;
     margin: 0;
+    font-family: 'Ubuntu', sans-serif;
 }
 
 /* Main */
@@ -103,8 +104,29 @@ body {
     padding-top: 3px;
 }
 
-.results_list {
-    
+.results_item {
+    overflow: scroll;
+}
+
+.result_item_group {
+    background: white;
+    border: none;
+    font-family: 'Ubuntu', sans-serif;
+    font-weight: bold;
+}
+
+.result_item_group:hover {
+    font-size: 1.2em;
+}
+
+.result_item_item {
+    background: white;
+    border: none;
+    font-family: 'Ubuntu', sans-serif;
+}
+
+.result_item_item:hover {
+    font-weight: bold;
 }
 
 /* List styling */
@@ -116,13 +138,17 @@ mat-list {
 
 /* Options styling */
 .option_heading {
-    color: white;
+    color: black;
+    padding-left: 10px;
+    padding-top: 10px;
 }
 
 .option {
     margin: 10px;
+    background: white;
 }
 
 mat-form-field {
     background-color: white;
+    padding-left: 10px;
 }
