@@ -106,6 +106,7 @@ body {
 
 .results_item {
     overflow: scroll;
+    max-height: 300px;
 }
 
 .result_item_group {
