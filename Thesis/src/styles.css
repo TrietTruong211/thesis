@@ -104,9 +104,11 @@ body {
     padding-top: 3px;
 }
 
-.results_item {
-    overflow: scroll;
-    max-height: 300px;
+.results_list {
+    overflow-y: scroll;
+    max-height: 700px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 .result_item_group {
@@ -130,6 +132,20 @@ body {
     font-weight: bold;
 }
 
+.results_mat_list {
+    overflow: scroll;
+    max-height: 300px;
+    -ms-overflow-style: none;
+    /* scrollbar-width: none; */
+}
+
+.results_list::-webkit-scrollbar {
+    display: none;
+}
+
+.results_mat_list::-webkit-scrollbar {
+    display: none;
+}
 /* List styling */
 mat-list {
     flex-grow: 1;
