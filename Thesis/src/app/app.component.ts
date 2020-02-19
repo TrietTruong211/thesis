@@ -14,7 +14,7 @@ let display_bools: IHash = {}; //boolean decide if a DOI result is displayed
 let data_ready = false;
 let current_network; //the network element
 let total_items = "";
-
+let group_legend = {};
 // search service to get 
 @Injectable()
 export class SearchService {
@@ -77,9 +77,17 @@ export class SearchService {
             }
           }
           resolve();
+          (error) => {
+            console.log(error);
+          }
         },
         msg => {
           reject();
+        }
+      )
+      .catch(
+        (error) => {
+          console.log(error);
         }
       );
     });
@@ -118,31 +126,34 @@ export class PlottingService {
     return res;
   }
 
-  plot_graph(sortingOption: string) {
-    console.log('Starting to plot');
+  getRandomColor() {
+    var color = Math.floor(0x1000000 * Math.random()).toString(16);
+    return '#' + ('000000' + color).slice(-6);
+  }
+
+  plot_graph(sortingOption: string, nodesOption: number, colorOption: string) {
+    console.log('Starting to plot with options: ' + sortingOption + " " + nodesOption + " " + colorOption);
     var nodes = new vis.DataSet();
     var edges = new vis.DataSet([]);
-    var group_legend = {};
     // console.log(alldata);
 
     //Adding nodes and edges
+    var node_counter = 0;
     for (let i of node_id) {
       var group_name = this.get_group(i, sortingOption);
       nodes.add({id: i, label: '', title: this.getString(alldata[i]) + 'Group:' + Math.floor(alldata[i].year / 5), group: group_name});
       if (grouping_map[group_name] == null) {
         grouping_key.push(group_name);
         grouping_map[group_name] = [];
-        grouping_map[group_name].push(alldata[i].doi);
-        // var middle = this.get_group(i, sortingOption);
-        // group_legend[middle] = {shape: "square", color: "#109618"};
-      } else {
-        grouping_map[group_name].push(alldata[i].doi);
+        group_legend[group_name] = {color: this.getRandomColor()};
       }
-      // console.log (Math.floor(alldata[i].year / 5));
+      grouping_map[group_name].push(alldata[i].doi);
       for (let j of mapping[i]) {
         edges.add({from: i, to: j});
       }
       display_bools[i] = true;
+      node_counter++;
+      if (node_counter > nodesOption) break;
     }
 
     //Counting total items
@@ -221,7 +232,8 @@ export class PlottingService {
         //   sortMethod: 'hubsize',
         //   shakeTowards: 'nodeSpacing'
         // }
-      }
+      },
+      groups: group_legend
     };
     var anotherOption = {
       joinCondition: function(nodeOptions) {
@@ -233,100 +245,101 @@ export class PlottingService {
     // network.clustering.clusterByConnection(node_id[0], anotherOption);
   }
 
-  plot_graph_options(sortingOption: string, nodesOption: number, colorOption: string) {
-    console.log('Starting to plot with options');
-    console.log('Sorting:' + sortingOption);
-    console.log('Number of nodes:' + nodesOption);
+  // plot_graph_options(sortingOption: string, nodesOption: number, colorOption: string) {
+  //   console.log('Starting to plot with options');
+  //   console.log('Sorting:' + sortingOption);
+  //   console.log('Number of nodes:' + nodesOption);
     
-    var nodes = new vis.DataSet();
-    var edges = new vis.DataSet([]);
-    // console.log(alldata);
+  //   var nodes = new vis.DataSet();
+  //   var edges = new vis.DataSet([]);
+  //   // console.log(alldata);
 
-    var nodeCounter = 0;
-    for (let i of node_id) {
-      nodes.add({id: i, label: '', title: this.getString(alldata[i]) + 'Group:' + Math.floor(alldata[i].year / 5), group: this.get_group(i, sortingOption)});
-      if (grouping_map[this.get_group(i, sortingOption)] == null) {
-        grouping_key.push(this.get_group(i, sortingOption));
-        grouping_map[this.get_group(i, sortingOption)] = [];
-        grouping_map[this.get_group(i, sortingOption)].push(alldata[i].doi);
-      } else {
-        grouping_map[this.get_group(i, sortingOption)].push(alldata[i].doi);
-      }
-      for (let j of mapping[i]) {
-        edges.add({from: i, to: j});
-      }
+  //   var nodeCounter = 0;
+  //   for (let i of node_id) {
+  //     nodes.add({id: i, label: '', title: this.getString(alldata[i]) + 'Group:' + Math.floor(alldata[i].year / 5), group: this.get_group(i, sortingOption)});
+  //     if (grouping_map[this.get_group(i, sortingOption)] == null) {
+  //       grouping_key.push(this.get_group(i, sortingOption));
+  //       grouping_map[this.get_group(i, sortingOption)] = [];
+  //       grouping_map[this.get_group(i, sortingOption)].push(alldata[i].doi);
+  //     } else {
+  //       grouping_map[this.get_group(i, sortingOption)].push(alldata[i].doi);
+  //     }
+  //     for (let j of mapping[i]) {
+  //       edges.add({from: i, to: j});
+  //     }
 
-      nodeCounter++;
+  //     nodeCounter++;
 
-      if (nodeCounter == nodesOption) break;
-    }
+  //     if (nodeCounter == nodesOption) break;
+  //   }
 
-    var container = document.getElementById('mynetwork');
-    var data = {
-      nodes: nodes,
-      edges: edges
-    };
-    var options = {
-      nodes: {
-        shape: "dot",
-        scaling: {
-          min: 1,
-          max: 1
-        },
-        font: {
-          size: 12,
-          face: "Tahoma"
-        }
-      },
-      edges: {
-        color: { inherit: true },
-        width: 1,
-        smooth: {
-          type: "continuous"
-        }
-      },
-      physics: {
-        forceAtlas2Based: {
-          gravitationalConstant: -16,
-          centralGravity: 0.005,
-          springLength: 230,
-          springConstant: 0.18
-        },
-        maxVelocity: 146,
-        solver: "forceAtlas2Based",
-        timestep: 0.35,
-        stabilization: { iterations: 150 }
-      },
-      layout: {
-        randomSeed: undefined,
-        improvedLayout: true,
-        clusterThreshold: 150,
-        // hierarchical: {
-        //   enabled:false,
-        //   levelSeparation: 150,
-        //   nodeSpacing: 100,
-        //   treeSpacing: 200,
-        //   blockShifting: true,
-        //   edgeMinimization: true,
-        //   parentCentralization: true,
-        //   direction: 'UD',
-        //   sortMethod: 'hubsize',
-        //   shakeTowards: 'nodeSpacing'
-        // }
-      }
-    };
-    var anotherOption = {
-      joinCondition: function(nodeOptions) {
-        return nodeOptions.group === 399;
-      }
-    }
-    var network = new vis.Network(container, data, options);    
-    // network.clustering.clusterByConnection(node_id[0], anotherOption);
-  }
+  //   var container = document.getElementById('mynetwork');
+  //   var data = {
+  //     nodes: nodes,
+  //     edges: edges
+  //   };
+  //   var options = {
+  //     nodes: {
+  //       shape: "dot",
+  //       scaling: {
+  //         min: 1,
+  //         max: 1
+  //       },
+  //       font: {
+  //         size: 12,
+  //         face: "Tahoma"
+  //       }
+  //     },
+  //     edges: {
+  //       color: { inherit: true },
+  //       width: 1,
+  //       smooth: {
+  //         type: "continuous"
+  //       }
+  //     },
+  //     physics: {
+  //       forceAtlas2Based: {
+  //         gravitationalConstant: -16,
+  //         centralGravity: 0.005,
+  //         springLength: 230,
+  //         springConstant: 0.18
+  //       },
+  //       maxVelocity: 146,
+  //       solver: "forceAtlas2Based",
+  //       timestep: 0.35,
+  //       stabilization: { iterations: 150 }
+  //     },
+  //     layout: {
+  //       randomSeed: undefined,
+  //       improvedLayout: true,
+  //       clusterThreshold: 150,
+  //       // hierarchical: {
+  //       //   enabled:false,
+  //       //   levelSeparation: 150,
+  //       //   nodeSpacing: 100,
+  //       //   treeSpacing: 200,
+  //       //   blockShifting: true,
+  //       //   edgeMinimization: true,
+  //       //   parentCentralization: true,
+  //       //   direction: 'UD',
+  //       //   sortMethod: 'hubsize',
+  //       //   shakeTowards: 'nodeSpacing'
+  //       // }
+  //     }
+  //   };
+  //   var anotherOption = {
+  //     joinCondition: function(nodeOptions) {
+  //       return nodeOptions.group === 399;
+  //     }
+  //   }
+  //   var network = new vis.Network(container, data, options);    
+  //   // network.clustering.clusterByConnection(node_id[0], anotherOption);
+  // }
 
   get_group(index: number, selection: String) {
     switch(selection) {
       case "publishTime": 
+        if (alldata[index].year == '') return "Undefined";
         return Math.floor(alldata[index].year / 5) * 5 + "-" + (Math.floor(alldata[index].year / 5) * 5 + 4);
       case "noOfCitation":
         return alldata[index].citation_count;
@@ -347,15 +360,7 @@ export class PlottingService {
 })
 
 export class AppComponent {
-  displayedColumns: string[] = ['title', 'DOI', 'reference_number'];
-
   constructor(private plottingService: PlottingService) {}
-
-  foods = [
-    {value: 'steak-0', viewValue: 'Steak'},
-    {value: 'pizza-1', viewValue: 'Pizza'},
-    {value: 'tacos-2', viewValue: 'Tacos'}
-  ];
 
   dataSortingOptions = [
     {value: 'publishTime', viewValue: 'Publish Time'},
@@ -377,6 +382,10 @@ export class AppComponent {
     {value: 'customize', viewValue: 'Customize'}
   ]
 
+  sortingOption = "publishTime";
+  nodesOption = 300;
+  colorOption = "default";
+
   content_ready = false;
   statistic = "";
 
@@ -393,19 +402,25 @@ export class AppComponent {
     this.plottingService.doSearch(DOI);
   }
 
-  plot_graph() {
-    this.plottingService.plot_graph("publishTime");
+  plot_graph(sortingOption: string, nodesOption: number, colorOption: string) {
+    // this.plottingService.plot_graph("publishTime");
+    this.plottingService.plot_graph(sortingOption, nodesOption, colorOption);
     this.statistic = total_items;
-    this.content_ready = true;
-  }
-
-  plot_graph_options(sortingOption: string, nodesOption: number, colorOption: string) {
-    this.plottingService.plot_graph_options(sortingOption, nodesOption, colorOption);
     this.content_ready = true;
   }
 
   select_node(nodeId: string) {
     current_network.selectNodes([nodeId]);
+    // current_network.showPopup(nodeId);
+    var options = {
+      scale: 1.0,
+      offset: { x: 0, y: 0 },
+      animation: {
+        duration: 1000,
+        easingFunction: "easeInOutQuad"
+      }
+    };
+    current_network.focus(nodeId, options);
   }
 
   open_new_tab(DOI: string) {
@@ -453,10 +468,6 @@ export class AppComponent {
     return display_bools[DOI];
   }
 
-  filter_results(input_value: HTMLInputElement) {
-    console.log("Something changed");
-  }
-
   onKey(event) {
     console.log(event.target.value);
     for (let doi of node_id) {
@@ -474,6 +485,11 @@ export class AppComponent {
     }
     return false;
   }
+
+  get_group_color(group: string) {
+    return group_legend[group].color;
+  }
+  
 }
 
 
