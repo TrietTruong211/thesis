@@ -10,6 +10,7 @@ let alldata: IHash = {}; //hash from node_id to all data of that DOI
 let mapping: IHash = {}; //mapping between nodes in the graph
 let grouping_key = []; //contains all group ids
 let grouping_map: IHash = {}; //mapping from group id to list of DOI belong to that group
+let display_bools: IHash = {}; //boolean decide if a DOI result is displayed
 let data_ready = false;
 let current_network; //the network element
 let total_items = "";
@@ -126,20 +127,22 @@ export class PlottingService {
 
     //Adding nodes and edges
     for (let i of node_id) {
-      nodes.add({id: i, label: '', title: this.getString(alldata[i]) + 'Group:' + Math.floor(alldata[i].year / 5), group: this.get_group(i, sortingOption)});
-      if (grouping_map[this.get_group(i, sortingOption)] == null) {
-        grouping_key.push(this.get_group(i, sortingOption));
-        grouping_map[this.get_group(i, sortingOption)] = [];
-        grouping_map[this.get_group(i, sortingOption)].push(alldata[i].doi);
+      var group_name = this.get_group(i, sortingOption);
+      nodes.add({id: i, label: '', title: this.getString(alldata[i]) + 'Group:' + Math.floor(alldata[i].year / 5), group: group_name});
+      if (grouping_map[group_name] == null) {
+        grouping_key.push(group_name);
+        grouping_map[group_name] = [];
+        grouping_map[group_name].push(alldata[i].doi);
         // var middle = this.get_group(i, sortingOption);
         // group_legend[middle] = {shape: "square", color: "#109618"};
       } else {
-        grouping_map[this.get_group(i, sortingOption)].push(alldata[i].doi);
+        grouping_map[group_name].push(alldata[i].doi);
       }
       // console.log (Math.floor(alldata[i].year / 5));
       for (let j of mapping[i]) {
         edges.add({from: i, to: j});
       }
+      display_bools[i] = true;
     }
 
     //Counting total items
@@ -420,12 +423,6 @@ export class AppComponent {
     current_network.selectNodes(list);
   }
 
-  filter_check(DOI: string, keyWords: string) {
-    console.log("Keyword is " + keyWords);
-    if (keyWords == null) return true;
-    return DOI.includes(keyWords) || alldata[DOI].title.includes(keyWords);
-  }
-
   get_node_id() {
     return node_id;
   }
@@ -440,11 +437,42 @@ export class AppComponent {
   }
 
   get_grouping_result(key: string) {
-    return grouping_map[key];
+    var newGroupingResult = []
+    for (let doi of grouping_map[key]) {
+      if (display_bools[doi]) newGroupingResult.push(doi);
+    }
+    // return grouping_map[key];
+    return newGroupingResult;
   }
 
   get_data_status() {
     return data_ready;
+  }
+
+  get_display_permission(DOI: string) {
+    return display_bools[DOI];
+  }
+
+  filter_results(input_value: HTMLInputElement) {
+    console.log("Something changed");
+  }
+
+  onKey(event) {
+    console.log(event.target.value);
+    for (let doi of node_id) {
+      if (!doi.includes(event.target.value) && !alldata[doi].title.includes(event.target.value)) {
+        display_bools[doi] = false;
+      } else {
+        display_bools[doi] = true;
+      }
+    }
+  }
+
+  check_group_display_permission(key: string) {
+    for (let doi of grouping_map[key]) {
+      if (display_bools[doi]) return true;
+    }
+    return false;
   }
 }
 

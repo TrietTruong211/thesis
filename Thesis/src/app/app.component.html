@@ -28,14 +28,14 @@
   <div id="results_area" class="main_area_item">
     <div id="filter_area">
       <h4>Filter</h4>
-      <input id="filter_bar" type="text" name="filterKeyword">
+      <input id="filter_bar" type="text" name="filterKeyword" (change)="filter_results(filterKeyword)"  (keyup)="onKey($event)">
       <h4 *ngIf="content_ready">{{statistic}}</h4>
     </div>
     <div id="results">
       <h4>Grouping Results</h4>
       <div class="results_list" *ngIf="content_ready">
         <div class="results_item" *ngFor="let key of get_grouping_key()">
-          <mat-expansion-panel>
+          <mat-expansion-panel *ngIf="check_group_display_permission(key)">
             <mat-expansion-panel-header>
               <mat-panel-title>
                 {{key}}
@@ -45,8 +45,8 @@
             <button class="result_item_group" (click)="select_group_node(key)">Select all</button>
             <mat-list class="results_mat_list" role="list" *ngIf="content_ready">
               <mat-list-item *ngFor="let DOI of get_grouping_result(key)">
-                <button class="result_item_item" (click)="select_node(DOI)" *ngIf="filter_check(DOI, filterKeyword)">{{DOI}}</button>
-                <button class="result_item_item" (click)="open_new_tab(DOI)"><i class="fas fa-book-open"></i></button>
+                <button class="result_item_item" (click)="select_node(DOI)" *ngIf="get_display_permission(DOI)">{{DOI}}</button>
+                <button class="result_item_item" (click)="open_new_tab(DOI)" *ngIf="get_display_permission(DOI)"><i class="fas fa-book-open"></i></button>
               </mat-list-item>
             </mat-list>
           </mat-expansion-panel>
