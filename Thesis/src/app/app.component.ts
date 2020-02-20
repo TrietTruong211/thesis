@@ -131,8 +131,8 @@ export class PlottingService {
     return '#' + ('000000' + color).slice(-6);
   }
 
-  plot_graph(sortingOption: string, nodesOption: number, colorOption: string) {
-    console.log('Starting to plot with options: ' + sortingOption + " " + nodesOption + " " + colorOption);
+  plot_graph(sortingOption: string, nodesOption: number, colorOption: string, seed: string) {
+    console.log('Starting to plot with options: ' + sortingOption + " " + nodesOption + " " + colorOption + " " + seed);
     var nodes = new vis.DataSet();
     var edges = new vis.DataSet([]);
     // console.log(alldata);
@@ -219,22 +219,14 @@ export class PlottingService {
       layout: {
         randomSeed: undefined,
         improvedLayout: true,
-        clusterThreshold: 150,
-        // hierarchical: {
-        //   enabled:false,
-        //   levelSeparation: 150,
-        //   nodeSpacing: 100,
-        //   treeSpacing: 200,
-        //   blockShifting: true,
-        //   edgeMinimization: true,
-        //   parentCentralization: true,
-        //   direction: 'UD',
-        //   sortMethod: 'hubsize',
-        //   shakeTowards: 'nodeSpacing'
-        // }
+        clusterThreshold: 150
       },
       groups: group_legend
     };
+
+    if (+seed != 0) options.layout.randomSeed = Number(seed);
+    console.log("Seed "+ Number(seed));
+    console.log(+seed);
     var anotherOption = {
       joinCondition: function(nodeOptions) {
         return nodeOptions.group === 399;
@@ -244,97 +236,6 @@ export class PlottingService {
     current_network = network;
     // network.clustering.clusterByConnection(node_id[0], anotherOption);
   }
-
-  // plot_graph_options(sortingOption: string, nodesOption: number, colorOption: string) {
-  //   console.log('Starting to plot with options');
-  //   console.log('Sorting:' + sortingOption);
-  //   console.log('Number of nodes:' + nodesOption);
-    
-  //   var nodes = new vis.DataSet();
-  //   var edges = new vis.DataSet([]);
-  //   // console.log(alldata);
-
-  //   var nodeCounter = 0;
-  //   for (let i of node_id) {
-  //     nodes.add({id: i, label: '', title: this.getString(alldata[i]) + 'Group:' + Math.floor(alldata[i].year / 5), group: this.get_group(i, sortingOption)});
-  //     if (grouping_map[this.get_group(i, sortingOption)] == null) {
-  //       grouping_key.push(this.get_group(i, sortingOption));
-  //       grouping_map[this.get_group(i, sortingOption)] = [];
-  //       grouping_map[this.get_group(i, sortingOption)].push(alldata[i].doi);
-  //     } else {
-  //       grouping_map[this.get_group(i, sortingOption)].push(alldata[i].doi);
-  //     }
-  //     for (let j of mapping[i]) {
-  //       edges.add({from: i, to: j});
-  //     }
-
-  //     nodeCounter++;
-
-  //     if (nodeCounter == nodesOption) break;
-  //   }
-
-  //   var container = document.getElementById('mynetwork');
-  //   var data = {
-  //     nodes: nodes,
-  //     edges: edges
-  //   };
-  //   var options = {
-  //     nodes: {
-  //       shape: "dot",
-  //       scaling: {
-  //         min: 1,
-  //         max: 1
-  //       },
-  //       font: {
-  //         size: 12,
-  //         face: "Tahoma"
-  //       }
-  //     },
-  //     edges: {
-  //       color: { inherit: true },
-  //       width: 1,
-  //       smooth: {
-  //         type: "continuous"
-  //       }
-  //     },
-  //     physics: {
-  //       forceAtlas2Based: {
-  //         gravitationalConstant: -16,
-  //         centralGravity: 0.005,
-  //         springLength: 230,
-  //         springConstant: 0.18
-  //       },
-  //       maxVelocity: 146,
-  //       solver: "forceAtlas2Based",
-  //       timestep: 0.35,
-  //       stabilization: { iterations: 150 }
-  //     },
-  //     layout: {
-  //       randomSeed: undefined,
-  //       improvedLayout: true,
-  //       clusterThreshold: 150,
-  //       // hierarchical: {
-  //       //   enabled:false,
-  //       //   levelSeparation: 150,
-  //       //   nodeSpacing: 100,
-  //       //   treeSpacing: 200,
-  //       //   blockShifting: true,
-  //       //   edgeMinimization: true,
-  //       //   parentCentralization: true,
-  //       //   direction: 'UD',
-  //       //   sortMethod: 'hubsize',
-  //       //   shakeTowards: 'nodeSpacing'
-  //       // }
-  //     }
-  //   };
-  //   var anotherOption = {
-  //     joinCondition: function(nodeOptions) {
-  //       return nodeOptions.group === 399;
-  //     }
-  //   }
-  //   var network = new vis.Network(container, data, options);    
-  //   // network.clustering.clusterByConnection(node_id[0], anotherOption);
-  // }
 
   get_group(index: number, selection: String) {
     switch(selection) {
@@ -388,6 +289,7 @@ export class AppComponent {
 
   content_ready = false;
   statistic = "";
+  seed = undefined;
 
   // searchDOI(title: HTMLInputElement) {
     //   this.httpClient.get(`https://api.crossref.org/works?filter=has-full-text:true&mailto=centory98@gmail.com&query.title=${title.value}`)
@@ -402,9 +304,9 @@ export class AppComponent {
     this.plottingService.doSearch(DOI);
   }
 
-  plot_graph(sortingOption: string, nodesOption: number, colorOption: string) {
+  plot_graph(sortingOption: string, nodesOption: number, colorOption: string, seed: string) {
     // this.plottingService.plot_graph("publishTime");
-    this.plottingService.plot_graph(sortingOption, nodesOption, colorOption);
+    this.plottingService.plot_graph(sortingOption, nodesOption, colorOption, seed);
     this.statistic = total_items;
     this.content_ready = true;
   }
@@ -490,6 +392,15 @@ export class AppComponent {
     return group_legend[group].color;
   }
   
+  get_seed() {
+    return this.seed;
+  }
+
+  export_seed() {
+    this.seed = current_network.getSeed();
+    console.log(this.seed);
+    console.log(typeof(current_network.getSeed()));
+  }
 }
 
 
