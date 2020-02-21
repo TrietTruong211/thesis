@@ -16,7 +16,9 @@ body {
   
 #results_area, #options_area {
     width: 20%;
+    max-width: 20%;
     margin: 20px;
+    resize: none;
 }
 
 /* Graph related */
@@ -202,4 +204,19 @@ mat-form-field {
 
 .search_area_button:hover {
     font-size: 1.01em;
+}
+
+/* import and export area */
+#import_export_area {
+    margin: auto;
+    margin-bottom: 50px;
+    width: 60%;
+}
+
+#import_export_textarea {
+    width: 100%;
+    height: 100px;
+    margin: auto;
+    vertical-align: middle;
+    resize: none;
 }

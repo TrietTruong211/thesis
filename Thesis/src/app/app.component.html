@@ -110,8 +110,8 @@
   </div>
 </div>
 
-<div>
-  <textarea id="input_output" [(value)]="textArea"></textarea>
-  <button (click)="import_data()">Import</button>
+<div id="import_export_area">
+  <textarea id="import_export_textarea" [(value)]="textArea" name="input_text" #input_text></textarea>
+  <button (click)="import_data(input_text.value)">Import</button>
   <button (click)="export_data()">Export</button>
 </div>

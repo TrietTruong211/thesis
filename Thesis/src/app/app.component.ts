@@ -135,15 +135,18 @@ export class PlottingService {
 
   plot_graph(sortingOption: string, nodesOption: number, colorOption: string, seed: string) {
     console.log('Starting to plot with options: ' + sortingOption + " " + nodesOption + " " + colorOption + " " + seed);
-    var nodes = new vis.DataSet();
-    var edges = new vis.DataSet();
+    var nodes = [];
+    var edges = [];
+
+    // var nodes = new vis.DataSet();
+    // var edges = new vis.DataSet([]);
     // console.log(alldata);
 
     //Adding nodes and edges
     var node_counter = 0;
     for (let i of node_id) {
       var group_name = this.get_group(i, sortingOption);
-      nodes.add({id: i, label: '', title: this.getString(alldata[i]) + 'Group:' + Math.floor(alldata[i].year / 5), group: group_name});
+      nodes.push({id: i, label: '', title: this.getString(alldata[i]) + 'Group:' + Math.floor(alldata[i].year / 5), group: group_name});
       if (grouping_map[group_name] == null) {
         grouping_key.push(group_name);
         grouping_map[group_name] = [];
@@ -151,7 +154,7 @@ export class PlottingService {
       }
       grouping_map[group_name].push(alldata[i].doi);
       for (let j of mapping[i]) {
-        edges.add({from: i, to: j});
+        edges.push({from: i, to: j});
       }
       display_bools[i] = true;
       node_counter++;
@@ -160,31 +163,12 @@ export class PlottingService {
 
     //Counting total items
     total_items = nodes.length + " items (" + grouping_key.length + " groups)";
-
-    
     var container = document.getElementById('mynetwork');
-
-    //Adding legends
-    var x = -container.clientWidth/2;
-    var y = -container.clientHeight/2;
-    var step = 70;
-    var legend_counter = 0;
-    // for (let group of grouping_key) {
-    //   nodes.add({
-    //     id: group,
-    //     x: x,
-    //     y: y + step * legend_counter,
-    //     label: group,
-    //     group: group,
-    //     fixed: true,
-    //     physics: false
-    //   });
-    //   legend_counter++;
-    // }
     
+
     var data = {
-      nodes: nodes,
-      edges: edges
+      nodes: new vis.DataSet(nodes),
+      edges: new vis.DataSet(edges)
     };
     var options = {
       nodes: {
@@ -256,6 +240,74 @@ export class PlottingService {
       default:
         return null;
     }
+  }
+
+  plot_imported_graph(nodes: any, edges: any, legend: any) {
+    for (let i of nodes) {
+      var group_name = i.group;
+      if (grouping_map[group_name] == null) {
+        grouping_key.push(group_name);
+        grouping_map[group_name] = [];
+        group_legend[group_name] = {color: this.getRandomColor()};
+      }
+      grouping_map[group_name].push(i.id);
+      display_bools[i.id] = true;
+    }
+    group_legend = legend;
+
+    var container = document.getElementById('mynetwork');
+
+    var data = {
+      nodes: new vis.DataSet(nodes),
+      edges: new vis.DataSet(edges)
+    };
+    var options = {
+      nodes: {
+        shape: "dot",
+        scaling: {
+          min: 1,
+          max: 1
+        },
+        font: {
+          size: 12,
+          face: "Tahoma"
+        },
+        size: 16
+      },
+      // edges: {
+      //   color: { inherit: true },
+      //   width: 1,
+      //   smooth: {
+      //     type: "continuous"
+      //   }
+      // },
+      physics: {
+        forceAtlas2Based: {
+          gravitationalConstant: -26,
+          centralGravity: 0.005,
+          springLength: 230,
+          springConstant: 0.18
+        },
+        maxVelocity: 146,
+        solver: "forceAtlas2Based",
+        timestep: 0.35,
+        stabilization: { iterations: 150 }
+      },
+      layout: {
+        randomSeed: undefined,
+        improvedLayout: true,
+        clusterThreshold: 150
+      },
+      groups: legend
+    };
+    var network = new vis.Network(container, data, options);
+
+    current_network = network;
+    console.log(nodes);
+    console.log(JSON.stringify(nodes));
+    nodes_global = nodes;
+    edges_global = edges;
+    // network.clustering.clusterByConnection(node_id[0], anotherOption);
   }
 }
 
@@ -408,14 +460,21 @@ export class AppComponent {
     console.log(typeof(current_network.getSeed()));
   }
 
-  import_data() {
-    console.log("Import")
+  import_data(input_text: string) {
+    console.log(input_text);
+    var obj = JSON.parse('{' + input_text + '}');
+    console.log(obj);
+    this.plottingService.plot_imported_graph(obj.nodes, obj.edges, obj.groups);
+    this.statistic = total_items;
+    this.content_ready = true;
   }
 
   export_data() {
-    var temp_nodes = current_network.body.data.nodes._data;
-    console.log(temp_nodes);
-    this.textArea+=JSON.stringify(temp_nodes, undefined, 2);
+    this.textArea+='"nodes":' + JSON.stringify(nodes_global, undefined, 2);
+    this.textArea+=','
+    this.textArea+='"edges":' + JSON.stringify(edges_global, undefined, 2);
+    this.textArea+=','
+    this.textArea+='"groups":' + JSON.stringify(group_legend, undefined, 2);
   }
 
 }
