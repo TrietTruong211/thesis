@@ -15,6 +15,8 @@ let data_ready = false;
 let current_network; //the network element
 let total_items = "";
 let group_legend = {};
+let nodes_global;
+let edges_global;
 // search service to get 
 @Injectable()
 export class SearchService {
@@ -134,7 +136,7 @@ export class PlottingService {
   plot_graph(sortingOption: string, nodesOption: number, colorOption: string, seed: string) {
     console.log('Starting to plot with options: ' + sortingOption + " " + nodesOption + " " + colorOption + " " + seed);
     var nodes = new vis.DataSet();
-    var edges = new vis.DataSet([]);
+    var edges = new vis.DataSet();
     // console.log(alldata);
 
     //Adding nodes and edges
@@ -225,15 +227,18 @@ export class PlottingService {
     };
 
     if (+seed != 0) options.layout.randomSeed = Number(seed);
-    console.log("Seed "+ Number(seed));
-    console.log(+seed);
     var anotherOption = {
       joinCondition: function(nodeOptions) {
         return nodeOptions.group === 399;
       }
     }
     var network = new vis.Network(container, data, options);
+
     current_network = network;
+    console.log(nodes);
+    console.log(JSON.stringify(nodes));
+    nodes_global = nodes;
+    edges_global = edges;
     // network.clustering.clusterByConnection(node_id[0], anotherOption);
   }
 
@@ -290,6 +295,7 @@ export class AppComponent {
   content_ready = false;
   statistic = "";
   seed = undefined;
+  textArea = "";
 
   // searchDOI(title: HTMLInputElement) {
     //   this.httpClient.get(`https://api.crossref.org/works?filter=has-full-text:true&mailto=centory98@gmail.com&query.title=${title.value}`)
@@ -401,6 +407,17 @@ export class AppComponent {
     console.log(this.seed);
     console.log(typeof(current_network.getSeed()));
   }
+
+  import_data() {
+    console.log("Import")
+  }
+
+  export_data() {
+    var temp_nodes = current_network.body.data.nodes._data;
+    console.log(temp_nodes);
+    this.textArea+=JSON.stringify(temp_nodes, undefined, 2);
+  }
+
 }
 
 
