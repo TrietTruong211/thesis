@@ -19,6 +19,7 @@ body {
     max-width: 20%;
     margin: 20px;
     resize: none;
+    overflow: hidden;
 }
 
 /* Graph related */
@@ -157,6 +158,11 @@ body {
 .results_mat_list::-webkit-scrollbar {
     display: none;
 }
+
+.result_mat_list_item {
+    overflow: wrap;
+}
+
 /* List styling */
 mat-list {
     flex-grow: 1;
@@ -219,4 +225,26 @@ mat-form-field {
     margin: auto;
     vertical-align: middle;
     resize: none;
+}
+
+/* analyser area */
+#analyser_area {
+    margin: auto;
+    margin-bottom: 50px;
+    width: 60%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+#analyser_button {
+    height: 10px;
+}
+
+.analyser_item {
+    width: 100%;
+    margin: auto;
+    margin-bottom: 0px;
+    background: white;
+    padding: 10px;
 }

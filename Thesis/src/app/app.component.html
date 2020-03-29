@@ -17,10 +17,9 @@
   <h1>Input DOI</h1>
   <p>Example: 10.1038/nphys1170</p>
   <div id="search_bar">
-    <input id="search_bar_input" type="text" name="queryMetadata" value="10.1210/edrv-16-1-3" #queryMetadata>
+    <input id="search_bar_input" type="text" name="queryMetadata" value="10.1038/nphys1170" #queryMetadata>
     <button class="search_area_button" (click)="doSearch(queryMetadata)" *ngIf="!get_data_status()"><i class="fas fa-search"></i></button>
-    <button class="search_area_button" (click)="plot_graph(sortingOption, nodesOption, colorOption, seed.value)" *ngIf="get_data_status()"> <i class="fas fa-drafting-compass"></i></button>
-    <!-- <button (click)="plot_graph()"> Plot Example</button> -->
+    <button class="search_area_button" (click)="plot_graph(mainDataOption, sortingOption, nodesOption, colorOption, seed.value)" *ngIf="get_data_status()"> <i class="fas fa-drafting-compass"></i></button>
   </div>
 </div>
 
@@ -44,7 +43,7 @@
             </mat-expansion-panel-header>
             <button class="result_item_group" (click)="select_group_node(key)">Select all</button>
             <mat-list class="results_mat_list" role="list" *ngIf="content_ready">
-              <mat-list-item *ngFor="let DOI of get_grouping_result(key)">
+              <mat-list-item class="result_mat_list_item" *ngFor="let DOI of get_grouping_result(key)">
                 <button class="result_item_item" (click)="select_node(DOI)" *ngIf="get_display_permission(DOI)">{{DOI}}</button>
                 <button class="result_item_item" (click)="open_new_tab(DOI)" *ngIf="get_display_permission(DOI)"><i class="fas fa-book-open"></i></button>
               </mat-list-item>
@@ -59,10 +58,24 @@
     <div id="mynetwork"></div>
   </div>
   <div id="options_area" class="main_area_item">
+    <h3>Options</h3>
+
     <div class="option">
-      <h4 class="option_heading">Data Sorting</h4>
+      <h4 class="option_heading">Main Data</h4>
       <mat-form-field>
-        <mat-label>Sort data according to </mat-label>
+        <mat-label>Group data according to </mat-label>
+        <mat-select [(value)] = "mainDataOption">
+          <mat-option *ngFor="let option of mainDataOptions" [value]="option.value">
+            {{option.viewValue}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="option">
+      <h4 class="option_heading">Data Grouping</h4>
+      <mat-form-field>
+        <mat-label>Group data according to </mat-label>
         <mat-select [(value)] = "sortingOption">
           <mat-option *ngFor="let option of dataSortingOptions" [value]="option.value">
             {{option.viewValue}}
@@ -110,7 +123,25 @@
   </div>
 </div>
 
+<div id="analyser_area">
+  <h3>Analyser</h3>
+  <div id="sphere_area" class="analyser_item">
+    <h4>Sphere of influence</h4>
+    <input id="sphere_input" type="text" name="sphere_input" value="10.1210/edrv-16-1-3" #sphere_input>
+    <button class="analyser_button" (click)="sphere_influence(sphere_input.value)">Apply</button>
+  </div>
+  <div id="connection_area" class="analyser_item">
+    <h4>Find connection</h4>
+    Between
+    <input id="connection_input_1" type="text" name="connection_input_1" value="10.1038/nphys1170" #connection_input_1>
+    and
+    <input id="connection_input_2" type="text" name="connection_input_2" value="10.1088/1674-1056/22/6/060302" #connection_input_2>
+    <button class="analyser_button" (click)="find_connection(connection_input_1.value, connection_input_2.value)">Find</button>
+  </div>
+</div>
+
 <div id="import_export_area">
+  <h3>Import and Export</h3>
   <textarea id="import_export_textarea" [(value)]="textArea" name="input_text" #input_text></textarea>
   <button (click)="import_data(input_text.value)">Import</button>
   <button (click)="export_data()">Export</button>
