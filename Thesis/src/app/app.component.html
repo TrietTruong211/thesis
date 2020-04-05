@@ -16,9 +16,9 @@
 <div id="search_area">
   <h1>Input DOI</h1>
   <p>Example: 10.1038/nphys1170</p>
+  <!-- <button class="search_area_button" (click)="print_debug()">Debug</button> -->
   <div id="search_bar">
     <input id="search_bar_input" type="text" name="queryMetadata" value="10.1038/nphys1170" #queryMetadata>
-    <button id="starting_search_button" class="search_area_button" (click)="get_currently_selected_tab()">Get</button>
     <button id="starting_search_button" class="search_area_button" (click)="doSearch(queryMetadata)" *ngIf="!get_data_status()"><i class="fas fa-search"></i></button>
     <button class="search_area_button" (click)="plot_graph(mainDataOption, sortingOption, nodesOption, colorOption, seed.value)" *ngIf="get_data_status()"> <i class="fas fa-drafting-compass"></i></button>
   </div>
@@ -33,9 +33,25 @@
     </div>
     <div id="results">
       <h4>Grouping Results</h4>
-
       <div class="results_list" *ngIf="content_ready">
-        <div class="results_item" *ngFor="let key of get_grouping_key()">
+        <div class="results_item" *ngFor="let key of current_grouping_key">
+          <mat-expansion-panel *ngIf="check_group_display_permission(key)">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{key}}<span class="dot" [style.background-color]="current_group_legend[key].color"></span>
+              </mat-panel-title>
+              <mat-panel-description></mat-panel-description>
+            </mat-expansion-panel-header>
+            <button class="result_item_group" (click)="select_group_node(key)">Select all</button>
+            <mat-list class="results_mat_list" role="list" *ngIf="content_ready">
+              <mat-list-item class="result_mat_list_item" *ngFor="let DOI of get_grouping_result(key)">
+                <button class="result_item_item" (click)="select_node(DOI)" *ngIf="get_display_permission(DOI)">{{DOI}}</button>
+                <button class="result_item_item" (click)="open_new_tab(DOI)" *ngIf="get_display_permission(DOI)"><i class="fas fa-book-open"></i></button>
+              </mat-list-item>
+            </mat-list>
+          </mat-expansion-panel>
+        </div>
+        <!-- <div class="results_item" *ngFor="let key of get_grouping_key()">
           <mat-expansion-panel *ngIf="check_group_display_permission(key)">
             <mat-expansion-panel-header>
               <mat-panel-title>
@@ -51,10 +67,10 @@
               </mat-list-item>
             </mat-list>
           </mat-expansion-panel>
-        </div>
+        </div> -->
       </div>
       
-      <div id="author_results" *ngIf="mainDataOption=='author'">
+      <div id="author_results">
         <h4>Author Results</h4>
         <mat-list class="results_mat_list" role="list" *ngIf="content_ready">
           <mat-list-item class="result_mat_list_item" *ngFor="let author_name of get_author_results()">
