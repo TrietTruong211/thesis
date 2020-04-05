@@ -65,7 +65,7 @@
     </div>
   </div>
   <div id="graph_area" class="main_area_item">
-    <mat-tab-group [selectedIndex]="selected.value" (selectedIndexChange)="selected.setValue($event)">
+    <mat-tab-group [selectedIndex]="selected.value" (selectedIndexChange)="selected.setValue($event)" (selectedTabChange)="updateTab()">
       <mat-tab *ngFor="let tab of tabs; let index = index" [label]="tab">
         <button mat-raised-button class="example-delete-tab-button" 
           *ngIf="tab != 'mynetwork'"

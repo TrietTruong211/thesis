@@ -22,6 +22,11 @@ let total_items = ""; //to be displayed
 let group_legend = {};
 let graph_data = {};
 
+
+// All variables to keep track of current variables for display
+
+
+
 // search service to get 
 @Injectable()
 export class SearchService {
@@ -553,6 +558,19 @@ export class AppComponent {
     window.open(url,'_blank');
   }
 
+  get_node_id() {
+    return node_id;
+  }
+  
+  get_data(DOI: string) {
+    return alldata[DOI];
+  }
+
+  get_data_status() {
+    return data_ready;
+  }
+
+//TO BE OPTIMIZED
   select_group_node(groupId: string) {
     var list = [];
     grouping_map[groupId].forEach(element => {
@@ -561,19 +579,12 @@ export class AppComponent {
     current_network.selectNodes(list);
   }
 
-  get_node_id() {
-    return node_id;
-  }
-
-  get_data(DOI: string) {
-    return alldata[DOI];
-  }
-
+//TO BE OPTIMIZED
   get_grouping_key() {
     grouping_key.sort();
     return grouping_key;
   }
-
+// TO BE OPTIMIZED
   get_grouping_result(key: string) {
     var newGroupingResult = []
     for (let doi of grouping_map[key]) {
@@ -582,15 +593,12 @@ export class AppComponent {
     // return grouping_map[key];
     return newGroupingResult;
   }
-
-  get_data_status() {
-    return data_ready;
-  }
-
+// TO BE OPTIMIZED
   get_display_permission(DOI: string) {
     return display_bools[DOI];
   }
 
+//MAYBE TO BE OPTIMIZED
   onKey(event) {
     console.log(event.target.value);
     for (let doi of node_id) {
@@ -601,19 +609,19 @@ export class AppComponent {
       }
     }
   }
-
+// TO BE OPTIMIZED
   check_group_display_permission(key: string) {
     for (let doi of grouping_map[key]) {
       if (display_bools[doi]) return true;
     }
     return false;
   }
-
+// TO BE OPTIMIZED
   get_group_color(group: string) {
     return group_legend[group].color;
   }
   
-  //Seed options
+//Seed options
   get_seed() {
     return this.seed;
   }
@@ -729,5 +737,9 @@ export class AppComponent {
     if (!this.tabs.includes(author_name)) this.tabs.push(author_name);
     this.selected.setValue(this.tabs.length - 1);
     this.plottingService.plot_graph_author(author_name, author_name, "publishTime");
+  }
+
+  updateTab() {
+    console.log(this.tabs[this.selected.value])
   }
 }
