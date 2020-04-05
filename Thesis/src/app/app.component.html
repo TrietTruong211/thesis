@@ -2,7 +2,7 @@
   <h1 id="title">Citation Visualizer</h1>
   <ul id="nav_bar">
     <li>
-      <a target="_blank" rel="noopener" href="https://angular.io/tutorial">Home</a>
+      <a target="_blank" rel="noopener" href="https://angular.io/tutorial">Help</a>
     </li>
     <li>
       <a target="_blank" rel="noopener" href="https://angular.io/cli">About</a>
@@ -18,7 +18,8 @@
   <p>Example: 10.1038/nphys1170</p>
   <div id="search_bar">
     <input id="search_bar_input" type="text" name="queryMetadata" value="10.1038/nphys1170" #queryMetadata>
-    <button class="search_area_button" (click)="doSearch(queryMetadata)" *ngIf="!get_data_status()"><i class="fas fa-search"></i></button>
+    <button id="starting_search_button" class="search_area_button" (click)="get_currently_selected_tab()">Get</button>
+    <button id="starting_search_button" class="search_area_button" (click)="doSearch(queryMetadata)" *ngIf="!get_data_status()"><i class="fas fa-search"></i></button>
     <button class="search_area_button" (click)="plot_graph(mainDataOption, sortingOption, nodesOption, colorOption, seed.value)" *ngIf="get_data_status()"> <i class="fas fa-drafting-compass"></i></button>
   </div>
 </div>
@@ -32,6 +33,7 @@
     </div>
     <div id="results">
       <h4>Grouping Results</h4>
+
       <div class="results_list" *ngIf="content_ready">
         <div class="results_item" *ngFor="let key of get_grouping_key()">
           <mat-expansion-panel *ngIf="check_group_display_permission(key)">
@@ -52,10 +54,29 @@
         </div>
       </div>
       
+      <div id="author_results" *ngIf="mainDataOption=='author'">
+        <h4>Author Results</h4>
+        <mat-list class="results_mat_list" role="list" *ngIf="content_ready">
+          <mat-list-item class="result_mat_list_item" *ngFor="let author_name of get_author_results()">
+            <button class="result_item_item" (click)="author_click(author_name)">{{author_name}}</button>
+          </mat-list-item>
+        </mat-list>
+      </div>
     </div>
   </div>
   <div id="graph_area" class="main_area_item">
-    <div id="mynetwork"></div>
+    <mat-tab-group [selectedIndex]="selected.value" (selectedIndexChange)="selected.setValue($event)">
+      <mat-tab *ngFor="let tab of tabs; let index = index" [label]="tab">
+        <button mat-raised-button class="example-delete-tab-button" 
+          *ngIf="tab != 'mynetwork'"
+          [disabled]="tabs.length === 1" 
+          (click)="removeTab(index)">
+          Delete Tab
+        </button>
+        <div [id]="tab" class="network"></div>
+      </mat-tab>
+    </mat-tab-group>
+    
   </div>
   <div id="options_area" class="main_area_item">
     <h3>Options</h3>
@@ -63,7 +84,7 @@
     <div class="option">
       <h4 class="option_heading">Main Data</h4>
       <mat-form-field>
-        <mat-label>Group data according to </mat-label>
+        <mat-label>Nodes represent</mat-label>
         <mat-select [(value)] = "mainDataOption">
           <mat-option *ngFor="let option of mainDataOptions" [value]="option.value">
             {{option.viewValue}}
@@ -96,7 +117,7 @@
       </mat-form-field>
     </div>
 
-    <div class="option">
+    <!-- <div class="option">
       <h4 class="option_heading">Color</h4>
       <mat-form-field>
         <mat-label>Styling for graph</mat-label>
@@ -106,7 +127,7 @@
           </mat-option>
         </mat-select>
       </mat-form-field>
-    </div>
+    </div> -->
 
     <div class="option">
       <h4 class="option_heading">Import Seed</h4>
@@ -146,3 +167,4 @@
   <button (click)="import_data(input_text.value)">Import</button>
   <button (click)="export_data()">Export</button>
 </div>
+

@@ -1,20 +1,22 @@
 import { Component, Injectable } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
+import {FormControl} from '@angular/forms';
 import { reject } from 'q';
 declare var $: any;
 declare var vis: any;
-// declare var queue: Array<string>;
+
 let queue = []; //queue for which DOI is being processed
 let node_id = []; //contains all unique DOI as id of each node
 let node_id_author = []; //contains all unique author (full name)
 let author_to_doi_pointer: IHash = {}; //map from author name to list of DOI contains that author
 let alldata: IHash = {}; //hash from node_id to all data of that DOI from opencitation
 let alldata_crossref: IHash = {}; //hash from node_id to all data from crossref api
+let data_ready = false; //boolean decide if data is successfully retrieved
+
 let mapping: IHash = {}; //mapping between nodes in the graph
 let grouping_key = []; //contains all group ids
 let grouping_map: IHash = {}; //mapping from group id to list of DOI belong to that group
 let display_bools: IHash = {}; //boolean decide if a DOI result is displayed
-let data_ready = false; //boolean decide if data is successfully retrieved
 let current_network; //the network element
 let total_items = ""; //to be displayed
 let group_legend = {};
@@ -28,6 +30,7 @@ export class SearchService {
 
   quota = 10;
   counter = 0;
+  pending_results = 0;
 
   constructor(private httpclient: HttpClient) {
 
@@ -45,6 +48,7 @@ export class SearchService {
       while (queue.length != 0 && this.counter < this.quota) {
         var current_DOI = queue.pop();
         this.counter += 1;
+        this.pending_results += 2;
         this.process_DOI(current_DOI).then(() => {
           this.process_queue();
         });
@@ -53,11 +57,13 @@ export class SearchService {
         });
       }
     } else {
-      if (!data_ready) {
-        console.log("DONE");
-        data_ready = true;
-        console.log(node_id_author);
-        console.log(author_to_doi_pointer);
+      if (this.pending_results == 0) {
+        if (!data_ready) {
+          console.log("DONE");
+          data_ready = true;
+          console.log(node_id_author);
+          console.log(author_to_doi_pointer);
+        }
       }
     }
   }
@@ -98,6 +104,7 @@ export class SearchService {
             console.log(error);
             console.log("Ooops");
           }
+          this.pending_results -= 1;
         },
         msg => {
           reject();
@@ -139,6 +146,7 @@ export class SearchService {
             console.log(error);
             console.log("Ooops");
           }
+          this.pending_results -= 1;
         },
         msg => {
           reject();
@@ -296,57 +304,7 @@ export class PlottingService {
       nodes: new vis.DataSet(nodes),
       edges: new vis.DataSet(edges)
     };
-    graph_data = data;
-    var options = {
-      nodes: {
-        shape: "dot",
-        scaling: {
-          min: 1,
-          max: 1
-        },
-        font: {
-          size: 12,
-          face: "Tahoma"
-        },
-        size: 16
-      },
-      edges: {
-        // color: { inherit: true },
-        // width: 1,
-        // smooth: {
-        //   type: "continuous"
-        // },
-        // selfReferenceSize: 250
-      },
-      physics: {
-        forceAtlas2Based: {
-          gravitationalConstant: -26,
-          centralGravity: 0.005,
-          springLength: 230,
-          springConstant: 0.18
-        },
-        maxVelocity: 146,
-        solver: "forceAtlas2Based",
-        timestep: 0.35,
-        stabilization: { iterations: 150 }
-      },
-      layout: {
-        randomSeed: undefined,
-        improvedLayout: true,
-        clusterThreshold: 150
-      },
-      groups: group_legend
-    };
-
-    if (+seed != 0) options.layout.randomSeed = Number(seed);
-    var anotherOption = {
-      joinCondition: function(nodeOptions) {
-        return nodeOptions.group === 399;
-      }
-    }
-    var network = new vis.Network(container, graph_data, options);
-
-    current_network = network;
+    this.plot_this(container, data, group_legend);
 
     // nodes_global = nodes;
     // edges_global = edges;
@@ -393,6 +351,59 @@ export class PlottingService {
       nodes: new vis.DataSet(nodes),
       edges: new vis.DataSet(edges)
     };
+    this.plot_this(container, data, group_legend);
+    // console.log(nodes);
+    // console.log(JSON.stringify(nodes));
+    // network.clustering.clusterByConnection(node_id[0], anotherOption);
+  }
+
+  plot_graph_author(graph_id: string, author_name: string, sortingOption: string) {
+    var nodes = [];
+    var edges = [];
+
+    grouping_key = [];
+    grouping_map = {};
+
+    var doi_list = author_to_doi_pointer[author_name];
+    var node_counter = 0;
+    for (let i of doi_list) {
+      var group_name = this.get_group(i, sortingOption);
+      nodes.push({id: i, label: '', title: this.getString(alldata[i]) + 'Group:' + Math.floor(alldata[i].year / 5), 
+      group: group_name});
+      if (grouping_map[group_name] == null) {
+        grouping_key.push(group_name);
+        grouping_map[group_name] = [];
+        group_legend[group_name] = {color: this.getRandomColor()};
+      }
+      grouping_map[group_name].push(alldata[i].doi);
+      for (let j of mapping[i]) {
+        if (doi_list.includes(j)) {
+          edges.push({id: i+"|"+j, from: i, to: j, title:"from "+i+" to "+j});
+        }
+      }
+      display_bools[i] = true;
+      node_counter++;
+      if (node_counter > 100) break;
+    }
+
+    //Counting total items
+    total_items = nodes.length + " items (" + grouping_key.length + " groups)";
+
+
+    var container = document.getElementById(graph_id);
+
+    var data = {
+      nodes: new vis.DataSet(nodes),
+      edges: new vis.DataSet(edges)
+    };
+
+    this.plot_this(container, data, group_legend);
+    // nodes_global = nodes;
+    // edges_global = edges;
+  }
+
+  plot_this(container: any, data: any, group_legend: any) {
+    graph_data = data;
     var options = {
       nodes: {
         shape: "dot",
@@ -431,16 +442,16 @@ export class PlottingService {
         improvedLayout: true,
         clusterThreshold: 150
       },
-      groups: legend
+      groups: group_legend
     };
-    var network = new vis.Network(container, data, options);
+    // if (+seed != 0) options.layout.randomSeed = Number(seed);
+    var network = new vis.Network(container, graph_data, options);
 
     current_network = network;
-    // console.log(nodes);
-    // console.log(JSON.stringify(nodes));
-    // network.clustering.clusterByConnection(node_id[0], anotherOption);
   }
 }
+
+
 
 
 
@@ -510,6 +521,7 @@ export class AppComponent {
   textArea = "";
           
   doSearch(DOI: HTMLInputElement) {
+    document.getElementById("starting_search_button").innerHTML = "Loading..."
     this.plottingService.doSearch(DOI);
   }
 
@@ -681,4 +693,41 @@ export class AppComponent {
     return null;
   }
 
+
+  //Tabs for multiple graphs
+
+  tabs = ['mynetwork'];
+  selected = new FormControl(0);
+  selected_tab_name = this.tabs[this.selected.value];
+  get_currently_selected_tab () {
+    console.log(this.tabs[this.selected.value])
+  }
+
+  addTab(selectAfterAdding: boolean) {
+    this.tabs.push('New');
+
+    if (selectAfterAdding) {
+      this.selected.setValue(this.tabs.length - 1);
+    }
+  }
+
+  removeTab(index: number) {
+    this.tabs.splice(index, 1);
+  }
+
+  getTabName(index: number) {
+    return this.tabs[index];
+  }
+
+  //For author's results area
+  get_author_results() {
+    return node_id_author;
+  }
+
+  author_click(author_name: string) {
+    console.log(author_name);
+    if (!this.tabs.includes(author_name)) this.tabs.push(author_name);
+    this.selected.setValue(this.tabs.length - 1);
+    this.plottingService.plot_graph_author(author_name, author_name, "publishTime");
+  }
 }

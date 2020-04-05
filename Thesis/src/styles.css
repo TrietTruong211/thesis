@@ -1,5 +1,9 @@
+/* C8C8C8 */
+/* 0051B5 */
+/* F2F2F2 */
+/* 0051B5 */
 body {
-    background-color: #6E459D;
+    background-color: #C8C8C8;
     margin: 0;
     font-family: 'Ubuntu', sans-serif;
 }
@@ -11,7 +15,7 @@ body {
   
 .main_area_item {
     border: 1px solid lightgray;
-    background-color: #7029C0;
+    background-color: #0051B5;
 }
   
 #results_area, #options_area {
@@ -19,7 +23,7 @@ body {
     max-width: 20%;
     margin: 20px;
     resize: none;
-    overflow: hidden;
+    overflow: auto;
 }
 
 /* Graph related */
@@ -30,7 +34,7 @@ body {
     margin-bottom: 20px;
 }
   
-#mynetwork {
+.network {
     margin: auto;
     width: auto;
     height: 100%;
@@ -73,7 +77,7 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    background-color: #7029C0;
+    background-color: #0051B5;
     border-bottom: 0.1px solid white;
 }
   
@@ -247,4 +251,16 @@ mat-form-field {
     margin-bottom: 0px;
     background: white;
     padding: 10px;
+}
+
+
+/* mat-tab area */
+.mat-tab-body-wrapper{
+    height: 100%;
+    min-height: 90%;
+}
+
+.mat-tab-group{
+    height: 100%;
+    min-height: 100%;
 }
