@@ -2,6 +2,7 @@ import { Component, Injectable } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
 import {FormControl} from '@angular/forms';
 import { reject } from 'q';
+import { type } from 'os';
 declare var $: any;
 declare var vis: any;
 
@@ -14,25 +15,8 @@ let alldata_crossref: IHash = {}; //hash from node_id to all data from crossref 
 let data_ready = false; //boolean decide if data is successfully retrieved
 let mapping: IHash = {}; //all mapping between nodes in the graph
 
-// let grouping_key = []; //contains all group ids
-// let grouping_map: IHash = {}; //mapping from group id to list of DOI belong to that group
-// let display_bools: IHash = {}; //boolean decide if a DOI resul is displayed
-// let total_items = ""; //to be displayed
-// let group_legend = {};
-// let graph_data = {};
-// let current_network;
-
-
-// All variables to keep track of current variables for display
-// let current_grouping_key = []; //contains all group ids
-// let current_grouping_map: IHash = {}; //mapping from group id to list of DOI belong to that group
-// let current_display_bools: IHash = {}; //boolean decide if a DOI resul is displayed
-// let current_total_items = ""; //to be displayed
-// let current_group_legend = {};
-// let current_graph_data = {};
-// let current_network;
-
 //Contains all data used to plot
+let all_node_id_in_graph: IHash = {}; //contains mapping from tab to all node id in that tab 
 let all_grouping_key: IHash = {}; //contains mapping from tab to all group ids
 let all_grouping_map: IHash = {}; //contains mapping from tab to [a mapping from group id to list of DOI belong to that group]
 let all_display_bools: IHash = {}; //contains mapping from tab to [a mapping from boolean decide if a DOI result is displayed]
@@ -285,10 +269,14 @@ export class PlottingService {
 
     all_grouping_key[tabName] = [];
     all_grouping_map[tabName] = {};
+    if (all_node_id_in_graph[tabName] == null) {
+      all_node_id_in_graph[tabName] = [];
+    }
 
-    if (mainData == 'author' || tabName != 'mynetwork') {
+    if (mainData == 'author') {
       for (let author_name of node_id_author) {
         nodes.push({id: author_name, label: '', title: this.getStringAuthor(author_name)});
+        all_node_id_in_graph[tabName].push(author_name);
       }
       for (let doi of node_id) {
         for (let author of alldata_crossref[doi].author) {
@@ -307,7 +295,8 @@ export class PlottingService {
       for (let i of node_id) {
         var group_name = this.get_group(i, sortingOption);
         nodes.push({id: i, label: '', title: this.getString(alldata[i]) + 'Group:' + sortingOption + group_name, 
-        group: group_name});
+        group: group_name, value: mapping[i].length});
+        all_node_id_in_graph[tabName].push(i);
         if (all_grouping_map[tabName][group_name] == null) {
           all_grouping_key[tabName].push(group_name);
           all_grouping_map[tabName][group_name] = [];
@@ -392,13 +381,17 @@ export class PlottingService {
 
     all_grouping_key[tabName] = [];
     all_grouping_map[tabName] = {};
+    if (all_node_id_in_graph[tabName] == null) {
+      all_node_id_in_graph[tabName] = [];
+    }
 
     var doi_list = author_to_doi_pointer[author_name];
     var node_counter = 0;
     for (let i of doi_list) {
       var group_name = this.get_group(i, sortingOption);
       nodes.push({id: i, label: '', title: this.getString(alldata[i]) + 'Group:' + sortingOption + group_name, 
-      group: group_name});
+      group: group_name, value: mapping[i].length});
+      all_node_id_in_graph[tabName].push(i);
       if (all_grouping_map[tabName][group_name] == null) {
         all_grouping_key[tabName].push(group_name);
         all_grouping_map[tabName][group_name] = [];
@@ -437,8 +430,11 @@ export class PlottingService {
       nodes: {
         shape: "dot",
         scaling: {
-          min: 1,
-          max: 1
+          customScalingFunction: function(min, max, total, value) {
+            return value;
+          },
+          min: 20,
+          max: 21
         },
         font: {
           size: 12,
@@ -549,6 +545,7 @@ export class AppComponent {
   seed = undefined;
   textArea = "";
 
+  current_nodes_in_graph = []; //
   current_grouping_key = []; //contains all group ids
   current_grouping_map = {}; //mapping from group id to list of DOI belong to that group
   current_display_bools = {}; //boolean decide if a DOI resul is displayed
@@ -556,6 +553,7 @@ export class AppComponent {
   current_group_legend = {};
   current_graph_data = {};
   current_network;
+  graph_data_back_up = [];
           
   doSearch(DOI: HTMLInputElement) {
     document.getElementById("starting_search_button").innerHTML = "Loading..."
@@ -569,6 +567,10 @@ export class AppComponent {
     this.updateTab();
     this.statistic = this.current_total_items;
     this.content_ready = true;
+
+    for (let node of this.current_graph_data["nodes"].get()) {
+      this.graph_data_back_up.push(node);
+    }
   }
 
   select_node(nodeId: string) {
@@ -613,11 +615,6 @@ export class AppComponent {
     this.current_network.selectNodes(list);
   }
 
-//TO BE OPTIMIZED
-  // get_grouping_key() {
-  //   this.current_grouping_key.sort();
-  //   return this.current_grouping_key;
-  // }
 // TO BE OPTIMIZED
   get_grouping_result(key: string) {
     var newGroupingResult = []
@@ -650,10 +647,6 @@ export class AppComponent {
     }
     return false;
   }
-// TO BE OPTIMIZED
-  // get_group_color(group: string) {
-  //   return this.current_group_legend[group].color;
-  // }
   
 //Seed options
   get_seed() {
@@ -775,6 +768,8 @@ export class AppComponent {
     this.plottingService.plot_graph_author(author_name, author_name, "publishTime", this.selected_tab_name);
   }
 
+
+  //For tab management
   updateTab() {
     console.log(this.tabs[this.selected.value])
     this.selected_tab_name = this.tabs[this.selected.value];
@@ -785,6 +780,7 @@ export class AppComponent {
     if (all_total_items[this.selected_tab_name] == null) {all_total_items[this.selected_tab_name] = ""};
     if (all_group_legend[this.selected_tab_name] == null) {all_group_legend[this.selected_tab_name] = {}};
     if (all_graph_data[this.selected_tab_name] == null) {all_graph_data[this.selected_tab_name] = {}};
+    if (all_node_id_in_graph[this.selected_tab_name] == null) {all_node_id_in_graph[this.selected_tab_name] = []};
 
     this.current_grouping_key = all_grouping_key[this.selected_tab_name];
     this.current_grouping_key.sort();
@@ -793,30 +789,82 @@ export class AppComponent {
     this.current_total_items = all_total_items[this.selected_tab_name];
     this.current_group_legend = all_group_legend[this.selected_tab_name];
     this.current_graph_data = all_graph_data[this.selected_tab_name];
+    this.current_nodes_in_graph = all_node_id_in_graph[this.selected_tab_name];
 
     if (all_network[this.selected_tab_name] != null) 
     this.current_network = all_network[this.selected_tab_name];
 
+    if (this.get_data_status()){
+      this.sliderParametersUpdate();
+    }
     console.log("Tab information updated");
+  
   }
 
-  print_debug() {
-    console.log("All values from direct variables")
-    console.log(all_grouping_key[this.selected_tab_name]);
-    console.log(all_grouping_map[this.selected_tab_name]);
-    console.log(all_display_bools[this.selected_tab_name]);
-    console.log(all_total_items[this.selected_tab_name]);
-    console.log(all_group_legend[this.selected_tab_name]);
-    console.log(all_graph_data[this.selected_tab_name]);
-    console.log(all_network[this.selected_tab_name]);
+  
+  //For slider management
+  slider_max = 0;
+  slider_min = 10000;
+  slider_value = 0;
+  slider_step = 1;
 
-    console.log("All values from current variables")
-    console.log(this.current_grouping_key);
-    console.log(this.current_grouping_map);
-    console.log(this.current_display_bools);//
-    console.log(this.current_total_items);
-    console.log(this.current_group_legend);//
-    console.log(this.current_graph_data);
-    console.log(this.current_network);
+  sliderParametersUpdate () {
+    for (let doi of this.current_nodes_in_graph){
+      if (alldata[doi].year < this.slider_min) this.slider_min = alldata[doi].year;
+      if (alldata[doi].year > this.slider_max) this.slider_max = alldata[doi].year;
+    }
+    this.slider_value = this.slider_max;
+  }
+  
+  sliderValue (value: number){
+    // console.log(value);
+    this.slider_value = value
+    return value;
+  }
+
+  sliderUpdateGraph(event: any) {
+    this.slider_value = event.value
+    if (data_ready) {
+      for (let doi of this.current_nodes_in_graph) {
+        if (alldata[doi].year > this.slider_value) {
+          console.log(this.current_graph_data["nodes"].get());
+          console.log(this.graph_data_back_up);
+          this.current_graph_data["nodes"].remove({id: doi});
+        }
+      }
+      for (let item of this.graph_data_back_up) {
+        if (alldata[item.id].year <= this.slider_value && !this.current_graph_data["nodes"].get(item.id)) {
+          this.current_graph_data["nodes"].add(item);
+        }
+      }
+      console.log( this.current_graph_data["nodes"]);
+    }
   }
 }
+
+
+
+
+
+
+
+
+            // print_debug() {
+            //   console.log("All values from direct variables")
+            //   console.log(all_grouping_key[this.selected_tab_name]);
+            //   console.log(all_grouping_map[this.selected_tab_name]);
+            //   console.log(all_display_bools[this.selected_tab_name]);
+            //   console.log(all_total_items[this.selected_tab_name]);
+            //   console.log(all_group_legend[this.selected_tab_name]);
+            //   console.log(all_graph_data[this.selected_tab_name]);
+            //   console.log(all_network[this.selected_tab_name]);
+          
+            //   console.log("All values from current variables")
+            //   console.log(this.current_grouping_key);
+            //   console.log(this.current_grouping_map);
+            //   console.log(this.current_display_bools);//
+            //   console.log(this.current_total_items);
+            //   console.log(this.current_group_legend);//
+            //   console.log(this.current_graph_data);
+            //   console.log(this.current_network);
+            // }

@@ -45,8 +45,10 @@
             <button class="result_item_group" (click)="select_group_node(key)">Select all</button>
             <mat-list class="results_mat_list" role="list" *ngIf="content_ready">
               <mat-list-item class="result_mat_list_item" *ngFor="let DOI of get_grouping_result(key)">
-                <button class="result_item_item" (click)="select_node(DOI)" *ngIf="get_display_permission(DOI)">{{DOI}}</button>
-                <button class="result_item_item" (click)="open_new_tab(DOI)" *ngIf="get_display_permission(DOI)"><i class="fas fa-book-open"></i></button>
+                <button class="result_item_item" (click)="select_node(DOI)" *ngIf="get_display_permission(DOI)" 
+                matTooltip="Click to focus">{{DOI}}</button>
+                <button class="result_item_item" (click)="open_new_tab(DOI)" *ngIf="get_display_permission(DOI)"
+                matTooltip="Click to open DOI in new tab"><i class="fas fa-book-open"></i></button>
               </mat-list-item>
             </mat-list>
           </mat-expansion-panel>
@@ -162,6 +164,11 @@
 
 <div id="analyser_area">
   <h3>Analyser</h3>
+  <div id="time_slider_area" class="analyser_item">
+    <h4>Time Machine</h4>
+    <mat-slider id="time_slider" thumbLabel [displayWith]="sliderValue" (change)="sliderUpdateGraph($event)" min={{slider_min}} 
+    max={{slider_max}}  step={{slider_step}}  value={{slider_value}} ></mat-slider>
+  </div>
   <div id="sphere_area" class="analyser_item">
     <h4>Sphere of influence</h4>
     <input id="sphere_input" type="text" name="sphere_input" value="10.1210/edrv-16-1-3" #sphere_input>
@@ -183,4 +190,3 @@
   <button (click)="import_data(input_text.value)">Import</button>
   <button (click)="export_data()">Export</button>
 </div>
-

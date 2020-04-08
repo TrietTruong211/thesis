@@ -264,3 +264,8 @@ mat-form-field {
     height: 100%;
     min-height: 100%;
 }
+
+/* Time slide */
+#time_slider {
+    width: 800px;
+}
