@@ -6,6 +6,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { MatSelectModule, MatListModule, MatExpansionModule, MatTabsModule, MatTooltipModule, MatSliderModule 
 } from '@angular/material';
+import { ClipboardModule } from 'ngx-clipboard';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { MatSelectModule, MatListModule, MatExpansionModule, MatTabsModule, MatT
     MatExpansionModule,
     MatTabsModule,
     MatTooltipModule,
-    MatSliderModule
+    MatSliderModule,
+    ClipboardModule
   ],
   providers: [SearchService, PlottingService],
   bootstrap: [AppComponent]

@@ -49,8 +49,8 @@
                 matTooltip="Click to focus">{{DOI}}</button>
                 <button class="result_item_item" (click)="open_new_tab(DOI)" *ngIf="get_display_permission(DOI)"
                 matTooltip="Click to open DOI in new tab"><i class="fas fa-book-open"></i></button>
-                <!-- <button class="result_item_item" [cdkCopyToClipboard]="DOI" *ngIf="get_display_permission(DOI)"
-                matTooltip="Click to copy DOI to clipboard"><i class="fas fa-copy"></i></button> -->
+                <button class="result_item_item" *ngIf="get_display_permission(DOI)" matTooltip="Copy DOI to clipboard"
+                ngxClipboard [cbContent]="DOI"><i class="fas fa-copy"></i></button>
               </mat-list-item>
             </mat-list>
           </mat-expansion-panel>
@@ -175,5 +175,5 @@
   <button (click)="import_data(input_text.value)">Import</button>
   <button (click)="export_data()">Export</button>
 </div>
-
-<button class="result_item_item" ><i class="fas fa-copy"></i></button>
+<!-- 
+<button class="result_item_item" ><i class="fas fa-copy"></i></button> -->

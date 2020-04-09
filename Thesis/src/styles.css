@@ -168,10 +168,23 @@ body {
 }
 
 /* List styling */
-mat-list {
+.mat-list {
     flex-grow: 1;
     /* border: 3px solid green; */
     overflow: auto;
+}
+
+.mat-list-item-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 0 16px;
+    position: relative;
+    height: inherit;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 15px;
 }
 
 /* Options styling */
