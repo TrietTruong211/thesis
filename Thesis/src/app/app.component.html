@@ -49,27 +49,12 @@
                 matTooltip="Click to focus">{{DOI}}</button>
                 <button class="result_item_item" (click)="open_new_tab(DOI)" *ngIf="get_display_permission(DOI)"
                 matTooltip="Click to open DOI in new tab"><i class="fas fa-book-open"></i></button>
+                <!-- <button class="result_item_item" [cdkCopyToClipboard]="DOI" *ngIf="get_display_permission(DOI)"
+                matTooltip="Click to copy DOI to clipboard"><i class="fas fa-copy"></i></button> -->
               </mat-list-item>
             </mat-list>
           </mat-expansion-panel>
         </div>
-        <!-- <div class="results_item" *ngFor="let key of get_grouping_key()">
-          <mat-expansion-panel *ngIf="check_group_display_permission(key)">
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                {{key}}<span class="dot" [style.background-color]="get_group_color(key)"></span>
-              </mat-panel-title>
-              <mat-panel-description></mat-panel-description>
-            </mat-expansion-panel-header>
-            <button class="result_item_group" (click)="select_group_node(key)">Select all</button>
-            <mat-list class="results_mat_list" role="list" *ngIf="content_ready">
-              <mat-list-item class="result_mat_list_item" *ngFor="let DOI of get_grouping_result(key)">
-                <button class="result_item_item" (click)="select_node(DOI)" *ngIf="get_display_permission(DOI)">{{DOI}}</button>
-                <button class="result_item_item" (click)="open_new_tab(DOI)" *ngIf="get_display_permission(DOI)"><i class="fas fa-book-open"></i></button>
-              </mat-list-item>
-            </mat-list>
-          </mat-expansion-panel>
-        </div> -->
       </div>
       
       <div id="author_results">
@@ -89,7 +74,7 @@
           *ngIf="tab != 'mynetwork'"
           [disabled]="tabs.length === 1" 
           (click)="removeTab(index)">
-          Delete Tab
+          x
         </button>
         <div [id]="tab" class="network"></div>
       </mat-tab>
@@ -190,3 +175,5 @@
   <button (click)="import_data(input_text.value)">Import</button>
   <button (click)="export_data()">Export</button>
 </div>
+
+<button class="result_item_item" ><i class="fas fa-copy"></i></button>

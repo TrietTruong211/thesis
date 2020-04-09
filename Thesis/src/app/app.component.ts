@@ -2,7 +2,7 @@ import { Component, Injectable } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
 import {FormControl} from '@angular/forms';
 import { reject } from 'q';
-import { type } from 'os';
+// import { type } from 'os';
 declare var $: any;
 declare var vis: any;
 
