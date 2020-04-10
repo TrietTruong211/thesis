@@ -19,8 +19,11 @@
   <!-- <button class="search_area_button" (click)="print_debug()">Debug</button> -->
   <div id="search_bar">
     <input id="search_bar_input" type="text" name="queryMetadata" value="10.1038/nphys1170" #queryMetadata>
-    <button id="starting_search_button" class="search_area_button" (click)="doSearch(queryMetadata)" *ngIf="!get_data_status()"><i class="fas fa-search"></i></button>
-    <button class="search_area_button" (click)="plot_graph(mainDataOption, sortingOption, nodesOption, colorOption, seed.value)" *ngIf="get_data_status()"> <i class="fas fa-drafting-compass"></i></button>
+    <button id="starting_search_button" class="search_area_button" (click)="doSearch(queryMetadata)" 
+    *ngIf="!get_data_status()"><i class="fas fa-search"></i></button>
+    <button class="search_area_button" 
+    (click)="plot_graph(mainDataOption, sortingOption, nodesOption, colorOption, seed.value)" 
+    *ngIf="get_data_status()"> <i class="fas fa-drafting-compass"></i></button>
   </div>
 </div>
 
@@ -70,12 +73,21 @@
   <div id="graph_area" class="main_area_item">
     <mat-tab-group [selectedIndex]="selected.value" (selectedIndexChange)="selected.setValue($event)" (selectedTabChange)="updateTab()">
       <mat-tab *ngFor="let tab of tabs; let index = index" [label]="tab">
-        <button mat-raised-button class="example-delete-tab-button" 
-          *ngIf="tab != 'mynetwork'"
-          [disabled]="tabs.length === 1" 
-          (click)="removeTab(index)">
-          x
-        </button>
+        <ng-template mat-tab-label>
+          {{tab}}
+          <button mat-raised-button class="delete-tab-button" 
+            *ngIf="tab != 'mynetwork'"
+            [disabled]="tabs.length === 1" 
+            (click)="removeTab(index)">
+            <i class="fas fa-window-close"></i>
+            </button>
+        </ng-template>
+          <!-- <button mat-raised-button class="example-delete-tab-button" 
+            *ngIf="tab != 'mynetwork'"
+            [disabled]="tabs.length === 1" 
+            (click)="removeTab(index)">
+            x
+          </button> -->
         <div [id]="tab" class="network"></div>
       </mat-tab>
     </mat-tab-group>
@@ -167,6 +179,28 @@
     <input id="connection_input_2" type="text" name="connection_input_2" value="10.1088/1674-1056/22/6/060302" #connection_input_2>
     <button class="analyser_button" (click)="find_connection(connection_input_1.value, connection_input_2.value)">Find</button>
   </div>
+  <div id="2d_graph_area" class="analyser_item">
+    <h4>Plot 2d graph</h4>
+    x:
+    <mat-form-field>
+      <mat-label>Data for x axis</mat-label>
+      <mat-select [(value)]="graphOption_2d_x">
+        <mat-option *ngFor="let option of graphOptions_2d" [value]="option.value">
+          {{option.viewValue}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    y:
+    <mat-form-field>
+      <mat-label>Data for y axis</mat-label>
+      <mat-select [(value)]="graphOption_2d_y">
+        <mat-option *ngFor="let option of graphOptions_2d" [value]="option.value">
+          {{option.viewValue}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <button class="analyser_button" (click)="plot_2d()">Plot</button>
+  </div>
 </div>
 
 <div id="import_export_area">
@@ -177,3 +211,12 @@
 </div>
 <!-- 
 <button class="result_item_item" ><i class="fas fa-copy"></i></button> -->
+<mat-tab-group>
+  <mat-tab label="Tab 1">Tab 1 Content</mat-tab>
+  <mat-tab label="Tab 2">Tab 2 Content</mat-tab>
+  <mat-tab disabled>
+    <ng-template mat-tab-label>
+      hello
+    </ng-template>
+  </mat-tab>
+</mat-tab-group>

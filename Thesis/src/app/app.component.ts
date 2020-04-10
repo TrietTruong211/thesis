@@ -474,6 +474,10 @@ export class PlottingService {
 
     all_network[tabName] = network;
   }
+
+  plot_this_2d(container: any, data: any, options: any, tabName: any) {
+    all_network[tabName] = new vis.Graph2d(container, data, options);
+  }
 }
 
 
@@ -535,10 +539,19 @@ export class AppComponent {
     {value: 'customize', viewValue: 'Customize'}
   ]
 
+  graphOptions_2d = [
+    {value: 'publishTime', viewValue: 'Publish Time'},
+    {value: 'noOfCitation', viewValue: 'Popularity'},
+    {value: 'topic', viewValue: 'Topic'},
+    {value: 'type', viewValue: 'Publish Type'}
+  ]
+
   mainDataOption = "doi";
   sortingOption = "publishTime";
   nodesOption = 10;
   colorOption = "default";
+  graphOption_2d_x = "";
+  graphOption_2d_y = "";
 
   content_ready = false;
   statistic = "";
@@ -804,7 +817,7 @@ export class AppComponent {
   
   //For slider management
   slider_max = 0;
-  slider_min = 10000;
+  slider_min = 3000;
   slider_value = 0;
   slider_step = 1;
 
@@ -839,6 +852,43 @@ export class AppComponent {
       }
       console.log( this.current_graph_data["nodes"]);
     }
+  }
+
+  //2d grap plotting
+  plot_2d () {
+    var new_2d_tab_name = this.selected_tab_name+"2d";
+    if (!this.tabs.includes(new_2d_tab_name)) this.tabs.push(new_2d_tab_name);
+    this.selected.setValue(this.tabs.length - 1);
+    this.selected_tab_name = this.tabs[this.selected.value];
+    
+    console.log(this.graphOption_2d_x);
+    console.log(this.graphOption_2d_y);
+
+    var container = document.getElementById(new_2d_tab_name);
+    var items = [
+      { x: "2014-06-11", y: 10 },
+      { x: "2014-06-12", y: 25 },
+      { x: "2014-06-13", y: 30 },
+      { x: "2014-06-14", y: 10 },
+      { x: "2014-06-15", y: 15 },
+      { x: "2014-06-16", y: 30 },
+    ];
+
+    all_graph_data[new_2d_tab_name] = new vis.DataSet(items);
+    var options = {
+      style: "bar",
+      barChart: { width: 50, align: "center" }, // align: left, center, right
+      drawPoints: false,
+      dataAxis: {
+        icons: true,
+      },
+      orientation: "top",
+      start: "2014-06-10",
+      end: "2014-06-18",
+    };
+
+    this.plottingService.plot_this_2d(container, items, options, new_2d_tab_name);
+    // all_network[new_2d_tab_name] = new vis.Graph2d(container, items, options);
   }
 }
 
