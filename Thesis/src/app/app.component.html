@@ -88,7 +88,8 @@
             (click)="removeTab(index)">
             x
           </button> -->
-        <div [id]="tab" class="network"></div>
+        <div [id]="tab" echarts [options]="getEchartData(tab)" class="network"></div>
+        <!-- <div echarts [options]="chartOption" class="demo-chart"></div> -->
       </mat-tab>
     </mat-tab-group>
     
@@ -209,14 +210,3 @@
   <button (click)="import_data(input_text.value)">Import</button>
   <button (click)="export_data()">Export</button>
 </div>
-<!-- 
-<button class="result_item_item" ><i class="fas fa-copy"></i></button> -->
-<mat-tab-group>
-  <mat-tab label="Tab 1">Tab 1 Content</mat-tab>
-  <mat-tab label="Tab 2">Tab 2 Content</mat-tab>
-  <mat-tab disabled>
-    <ng-template mat-tab-label>
-      hello
-    </ng-template>
-  </mat-tab>
-</mat-tab-group>

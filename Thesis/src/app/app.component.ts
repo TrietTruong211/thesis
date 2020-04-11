@@ -1,6 +1,8 @@
 import { Component, Injectable } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
 import {FormControl} from '@angular/forms';
+import { EChartOption } from 'echarts';
+
 import { reject } from 'q';
 // import { type } from 'os';
 declare var $: any;
@@ -24,7 +26,7 @@ let all_total_items: IHash = {}; //contains mapping from tab to total items of c
 let all_group_legend: IHash = {}; //contains mapping from tab to group legend
 let all_graph_data: IHash = {}; //contains mapping from tab to the graph data of that tab
 let all_network: IHash = {}; //contains mapping from tab to the network of that tab
-
+let all_echart_data: IHash = {}; //contains mapping from tab to echart data of that tab
 
 
 
@@ -474,10 +476,6 @@ export class PlottingService {
 
     all_network[tabName] = network;
   }
-
-  plot_this_2d(container: any, data: any, options: any, tabName: any) {
-    all_network[tabName] = new vis.Graph2d(container, data, options);
-  }
 }
 
 
@@ -540,6 +538,7 @@ export class AppComponent {
   ]
 
   graphOptions_2d = [
+    {value: 'doi', viewValue: "DOI"},
     {value: 'publishTime', viewValue: 'Publish Time'},
     {value: 'noOfCitation', viewValue: 'Popularity'},
     {value: 'topic', viewValue: 'Topic'},
@@ -861,60 +860,79 @@ export class AppComponent {
     this.selected.setValue(this.tabs.length - 1);
     this.selected_tab_name = this.tabs[this.selected.value];
     
-    console.log(this.graphOption_2d_x);
-    console.log(this.graphOption_2d_y);
+    var xdata = [];
+    var ydata = [];
 
-    var container = document.getElementById(new_2d_tab_name);
-    var items = [
-      { x: "2014-06-11", y: 10 },
-      { x: "2014-06-12", y: 25 },
-      { x: "2014-06-13", y: 30 },
-      { x: "2014-06-14", y: 10 },
-      { x: "2014-06-15", y: 15 },
-      { x: "2014-06-16", y: 30 },
-    ];
+    // {value: 'publishTime', viewValue: 'Publish Time'},
+    // {value: 'noOfCitation', viewValue: 'Popularity'},
+    // {value: 'topic', viewValue: 'Topic'},
+    // {value: 'type', viewValue: 'Publish Type'}
+    if (this.graphOption_2d_x == "doi" && this.graphOption_2d_y == "noOfCitation") {
+      for (let doi of this.current_nodes_in_graph) {
+        xdata.push(doi);
+        ydata.push(alldata[doi].citation_count);
+      }
+    } else if (this.graphOption_2d_x == "publishTime" && this.graphOption_2d_y == "noOfCitation") {
+      for (let doi of this.current_nodes_in_graph) {
+        xdata.push(alldata[doi].year);
+        ydata.push(alldata[doi].citation_count);
+      }
+    } else if (this.graphOption_2d_x == "topic" && this.graphOption_2d_y == "noOfCitation") {
+      var topicHash = {};
+      for (let doi of this.current_nodes_in_graph) {
+        if (!xdata.includes(alldata_crossref[doi]["short-container-title"][0])) {
+          xdata.push(alldata_crossref[doi]["short-container-title"][0]);
+          topicHash[alldata_crossref[doi]["short-container-title"][0]] = 0;
+        } else {
+          topicHash[alldata_crossref[doi]["short-container-title"][0]] ++;
+        }
+      }
+      for (let x of xdata) {
+        ydata.push(topicHash[x]);
+      }
+    } else if (this.graphOption_2d_x == "type" && this.graphOption_2d_y == "noOfCitation") {
+      for (let doi of this.current_nodes_in_graph) {
+        xdata.push(alldata[doi].year);
+        ydata.push(alldata[doi].citation_count);
+      }
+    } else {
+      return
+    }
 
-    all_graph_data[new_2d_tab_name] = new vis.DataSet(items);
-    var options = {
-      style: "bar",
-      barChart: { width: 50, align: "center" }, // align: left, center, right
-      drawPoints: false,
-      dataAxis: {
-        icons: true,
+
+    var chartOption = {
+      xAxis: {
+        type: 'category',
+        data: xdata
       },
-      orientation: "top",
-      start: "2014-06-10",
-      end: "2014-06-18",
-    };
+      yAxis: {
+        type: 'value'
+      },
+      series: [{
+        data: ydata,
+        type: 'bar'
+      }]
+    }
 
-    this.plottingService.plot_this_2d(container, items, options, new_2d_tab_name);
-    // all_network[new_2d_tab_name] = new vis.Graph2d(container, items, options);
+    all_echart_data[new_2d_tab_name] = chartOption;
   }
+
+  getEchartData(tabName: string) {
+    return all_echart_data[tabName];
+  }
+
+  // chartOption: EChartOption = {
+  //   xAxis: {
+  //     type: 'category',
+  //     data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  //   },
+  //   yAxis: {
+  //     type: 'value'
+  //   },
+  //   series: [{
+  //     data: [820, 932, 901, 934, 1290, 1330, 1320],
+  //     type: 'line'
+  //   }]
+  // }
+
 }
-
-
-
-
-
-
-
-
-            // print_debug() {
-            //   console.log("All values from direct variables")
-            //   console.log(all_grouping_key[this.selected_tab_name]);
-            //   console.log(all_grouping_map[this.selected_tab_name]);
-            //   console.log(all_display_bools[this.selected_tab_name]);
-            //   console.log(all_total_items[this.selected_tab_name]);
-            //   console.log(all_group_legend[this.selected_tab_name]);
-            //   console.log(all_graph_data[this.selected_tab_name]);
-            //   console.log(all_network[this.selected_tab_name]);
-          
-            //   console.log("All values from current variables")
-            //   console.log(this.current_grouping_key);
-            //   console.log(this.current_grouping_map);
-            //   console.log(this.current_display_bools);//
-            //   console.log(this.current_total_items);
-            //   console.log(this.current_group_legend);//
-            //   console.log(this.current_graph_data);
-            //   console.log(this.current_network);
-            // }

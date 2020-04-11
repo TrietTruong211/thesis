@@ -7,6 +7,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { MatSelectModule, MatListModule, MatExpansionModule, MatTabsModule, MatTooltipModule, MatSliderModule 
 } from '@angular/material';
 import { ClipboardModule } from 'ngx-clipboard';
+import { NgxEchartsModule } from 'ngx-echarts'
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { ClipboardModule } from 'ngx-clipboard';
     MatTabsModule,
     MatTooltipModule,
     MatSliderModule,
-    ClipboardModule
+    ClipboardModule,
+    NgxEchartsModule
   ],
   providers: [SearchService, PlottingService],
   bootstrap: [AppComponent]
