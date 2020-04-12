@@ -2,6 +2,7 @@ import { Component, Injectable } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
 import {FormControl} from '@angular/forms';
 import { EChartOption } from 'echarts';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 import { reject } from 'q';
 // import { type } from 'os';
@@ -505,7 +506,7 @@ export class PlottingService {
 })
 
 export class AppComponent {
-  constructor(private plottingService: PlottingService) {}
+  constructor(private plottingService: PlottingService, private _snackBar: MatSnackBar) {}
 
   mainDataOptions = [
     {value: 'doi', viewValue: "DOI"},
@@ -568,6 +569,7 @@ export class AppComponent {
   graph_data_back_up = [];
           
   doSearch(DOI: HTMLInputElement) {
+    this.openSnackBar("Getting data", "close");
     document.getElementById("starting_search_button").innerHTML = "Loading..."
     this.plottingService.doSearch(DOI);
     this.updateTab();
@@ -921,18 +923,12 @@ export class AppComponent {
     return all_echart_data[tabName];
   }
 
-  // chartOption: EChartOption = {
-  //   xAxis: {
-  //     type: 'category',
-  //     data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-  //   },
-  //   yAxis: {
-  //     type: 'value'
-  //   },
-  //   series: [{
-  //     data: [820, 932, 901, 934, 1290, 1330, 1320],
-  //     type: 'line'
-  //   }]
-  // }
+  
+  //Snackbar
+  openSnackBar(message: string, action: string) {
+    this._snackBar.open(message, action, {
+      duration: 2000,
+    });
+  }
 
 }

@@ -11,6 +11,7 @@ body {
 /* Main */
 #main_area {
     display: flex;
+    max-height: 750px;
 }
   
 .main_area_item {
@@ -23,7 +24,7 @@ body {
     max-width: 20%;
     margin: 20px;
     resize: none;
-    overflow: auto;
+    overflow-y: scroll;
 }
 
 /* Graph related */
@@ -259,7 +260,7 @@ mat-form-field {
 }
 
 .analyser_item {
-    width: 100%;
+    width: 98%;
     margin: auto;
     margin-bottom: 0px;
     background: white;
