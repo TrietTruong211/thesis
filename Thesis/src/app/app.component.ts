@@ -931,4 +931,9 @@ export class AppComponent {
     });
   }
 
+  updateColors() {
+    this.current_network.body.emitter.emit('_dataChanged');
+    this.current_network.redraw();
+  }
+
 }

@@ -16,7 +16,6 @@
 <div id="search_area">
   <h1>Input DOI</h1>
   <p>Example: 10.1038/nphys1170</p>
-  <!-- <button class="search_area_button" (click)="print_debug()">Debug</button> -->
   <div id="search_bar">
     <input id="search_bar_input" type="text" name="queryMetadata" value="10.1038/nphys1170" #queryMetadata>
     <button id="starting_search_button" class="search_area_button" (click)="doSearch(queryMetadata)" 
@@ -45,6 +44,8 @@
               </mat-panel-title>
               <mat-panel-description></mat-panel-description>
             </mat-expansion-panel-header>
+            <input [(colorPicker)]="current_group_legend[key].color" [style.background]="current_group_legend[key].color"
+            (colorPickerChange)="updateColors()"/>
             <button class="result_item_group" (click)="select_group_node(key)">Select all</button>
             <mat-list class="results_mat_list" role="list" *ngIf="content_ready">
               <mat-list-item class="result_mat_list_item" *ngFor="let DOI of get_grouping_result(key)">
@@ -82,14 +83,7 @@
             <i class="fas fa-window-close"></i>
             </button>
         </ng-template>
-          <!-- <button mat-raised-button class="example-delete-tab-button" 
-            *ngIf="tab != 'mynetwork'"
-            [disabled]="tabs.length === 1" 
-            (click)="removeTab(index)">
-            x
-          </button> -->
         <div [id]="tab" echarts [options]="getEchartData(tab)" class="network"></div>
-        <!-- <div echarts [options]="chartOption" class="demo-chart"></div> -->
       </mat-tab>
     </mat-tab-group>
     
@@ -133,23 +127,10 @@
       </mat-form-field>
     </div>
 
-    <!-- <div class="option">
-      <h4 class="option_heading">Color</h4>
-      <mat-form-field>
-        <mat-label>Styling for graph</mat-label>
-        <mat-select [(value)]="colorOption">
-          <mat-option *ngFor="let option of colorOptions" [value]="option.value">
-            {{option.viewValue}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div> -->
-
     <div class="option">
       <h4 class="option_heading">Import Seed</h4>
       <input id="seed_input" type="text" name="seed" #seed>
     </div>
-<!--  *ngIf="content_ready" -->
     <div class="option" *ngIf="content_ready">
       <h4 class="option_heading">Export Seed</h4>
       <div id="export_seed">

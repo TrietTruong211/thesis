@@ -24,6 +24,7 @@
     "echarts": "^4.7.0",
     "hammerjs": "^2.0.8",
     "ngx-clipboard": "^12.3.0",
+    "ngx-color-picker": "^9.0.0",
     "ngx-echarts": "^4.2.2",
     "rxjs": "~6.4.0",
     "tslib": "^1.10.0",

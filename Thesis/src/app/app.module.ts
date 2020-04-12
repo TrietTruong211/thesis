@@ -8,6 +8,7 @@ import { MatSelectModule, MatListModule, MatExpansionModule, MatTabsModule, MatT
 } from '@angular/material';
 import { ClipboardModule } from 'ngx-clipboard';
 import { NgxEchartsModule } from 'ngx-echarts'
+import { ColorPickerModule } from 'ngx-color-picker';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { NgxEchartsModule } from 'ngx-echarts'
     MatSliderModule,
     ClipboardModule,
     NgxEchartsModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    ColorPickerModule
   ],
   providers: [SearchService, PlottingService],
   bootstrap: [AppComponent]
