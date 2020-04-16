@@ -1,7 +1,8 @@
 /* C8C8C8 */
-/* 0051B5 */
+/* 3F51B5 */
 /* F2F2F2 */
-/* 0051B5 */
+/* 3F51B5 */
+/* #3F51B5 */
 body {
     background-color: #C8C8C8;
     margin: 0;
@@ -16,7 +17,7 @@ body {
   
 .main_area_item {
     border: 1px solid lightgray;
-    background-color: #0051B5;
+    background-color: #3F51B5;
 }
   
 #results_area, #options_area {
@@ -71,6 +72,8 @@ body {
     width: 700px;
     border: none;
     margin-left: 10px;
+    height: 35px;
+    font-size: 1.1em;
 }
 
 /* Navigation bar */
@@ -78,7 +81,7 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    background-color: #0051B5;
+    background-color: #3F51B5;
     border-bottom: 0.1px solid white;
 }
   
@@ -193,15 +196,24 @@ body {
     color: black;
     padding-left: 10px;
     padding-top: 10px;
+    margin-bottom: 0px;
 }
 
 .option {
-    margin: 10px;
+    /* margin: 10px; */
     background: white;
 }
 
-#seed_input {
+#options_area_wrapper {
+    background: white;
     margin: 10px;
+    padding: 10px;
+}
+
+#plot_button {
+    width: 160px;
+    margin-bottom: 15px;
+    margin-top: 15px;
 }
 
 #seed_output {
@@ -230,11 +242,29 @@ mat-form-field {
     font-size: 1.01em;
 }
 
+/* Under area */
+#under_area {
+    background: white;
+    width: 60%;
+    margin: auto;
+    margin-bottom: 40px;
+    padding: 5px;
+}
+
+#under_area .mat-expansion-panel {
+    background: #3F51B5;
+}
+
+#under_area .mat-expansion-panel-header-title {
+    color: white;
+    font-weight: bold;
+}
+
 /* import and export area */
 #import_export_area {
     margin: auto;
     margin-bottom: 50px;
-    width: 60%;
+    width: 100%;
 }
 
 #import_export_textarea {
@@ -245,14 +275,20 @@ mat-form-field {
     resize: none;
 }
 
+.import_export_button {
+    background: white;
+    padding: 20px;
+}
+
 /* analyser area */
 #analyser_area {
     margin: auto;
     margin-bottom: 50px;
-    width: 60%;
+    width: 95%;
     padding: 20px;
     display: flex;
     flex-direction: column;
+    background: #3F51B5;
 }
 
 #analyser_button {
@@ -280,12 +316,25 @@ mat-form-field {
 }
 
 .delete-tab-button {
-    background: #0051B5;
+    background: #3F51B5;
     border: none;
     margin-left: 5px;
+}
+
+.mat-tab-group.mat-primary .mat-ink-bar {
+    background-color: #E91E63;
+}
+
+.mat-tab-label {
+    color: white;
 }
 
 /* Time slide */
 #time_slider {
     width: 800px;
 }
+
+.mat-raised-button.mat-primary {
+    margin-left: 20px;
+}
+

@@ -4,7 +4,8 @@ import { NgModule } from '@angular/core';
 import { AppComponent, SearchService, PlottingService } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
-import { MatSelectModule, MatListModule, MatExpansionModule, MatTabsModule, MatTooltipModule, MatSliderModule, MatSnackBarModule 
+import { MatSelectModule, MatListModule, MatExpansionModule, MatTabsModule, MatTooltipModule, 
+  MatSliderModule, MatSnackBarModule, MatButtonModule, MatInputModule
 } from '@angular/material';
 import { ClipboardModule } from 'ngx-clipboard';
 import { NgxEchartsModule } from 'ngx-echarts'
@@ -27,7 +28,9 @@ import { ColorPickerModule } from 'ngx-color-picker';
     ClipboardModule,
     NgxEchartsModule,
     MatSnackBarModule,
-    ColorPickerModule
+    ColorPickerModule,
+    MatButtonModule,
+    MatInputModule
   ],
   providers: [SearchService, PlottingService],
   bootstrap: [AppComponent]

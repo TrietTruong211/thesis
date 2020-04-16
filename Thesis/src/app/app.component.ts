@@ -1,11 +1,8 @@
 import { Component, Injectable } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
 import {FormControl} from '@angular/forms';
-import { EChartOption } from 'echarts';
 import {MatSnackBar} from '@angular/material/snack-bar';
 
-import { reject } from 'q';
-// import { type } from 'os';
 declare var $: any;
 declare var vis: any;
 
@@ -48,7 +45,7 @@ export class SearchService {
   counter = 0;
   pending_results = 0;
 
-  constructor(private httpclient: HttpClient) {
+  constructor(private httpclient: HttpClient, private _snackBar: MatSnackBar) {
 
   }
 
@@ -77,8 +74,9 @@ export class SearchService {
         if (!data_ready) {
           console.log("DONE");
           data_ready = true;
-          console.log(node_id_author);
-          console.log(author_to_doi_pointer);
+          this._snackBar.open("All Done!", "close", {
+            duration: 2000,
+          });
         }
       }
     }
@@ -570,12 +568,14 @@ export class AppComponent {
           
   doSearch(DOI: HTMLInputElement) {
     this.openSnackBar("Getting data", "close");
-    document.getElementById("starting_search_button").innerHTML = "Loading..."
+    document.getElementById("starting_search_button").innerHTML = '<i class="fas fa-spinner"></i>';
     this.plottingService.doSearch(DOI);
     this.updateTab();
   }
 
   plot_graph(mainDataOption: string, sortingOption: string, nodesOption: number, colorOption: string, seed: string) {
+    this.openSnackBar("Plotting", "Close");
+
     this.selected_tab_name = this.tabs[this.selected.value];
     this.plottingService.plot_graph(mainDataOption,sortingOption, nodesOption, colorOption, seed, this.selected_tab_name);
     this.updateTab();

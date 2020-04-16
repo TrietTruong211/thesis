@@ -18,11 +18,10 @@
   <p>Example: 10.1038/nphys1170</p>
   <div id="search_bar">
     <input id="search_bar_input" type="text" name="queryMetadata" value="10.1038/nphys1170" #queryMetadata>
-    <button id="starting_search_button" class="search_area_button" (click)="doSearch(queryMetadata)" 
+    <button mat-mini-fab color="primary" id="starting_search_button" class="search_area_button" (click)="doSearch(queryMetadata)" 
     *ngIf="!get_data_status()"><i class="fas fa-search"></i></button>
-    <button class="search_area_button" 
-    (click)="plot_graph(mainDataOption, sortingOption, nodesOption, colorOption, seed.value)" 
-    *ngIf="get_data_status()"> <i class="fas fa-drafting-compass"></i></button>
+    <button mat-mini-fab color="primary" class="search_area_button" 
+    (click)="get_data_status()" *ngIf="get_data_status()"> <i class="fas fa-check"></i></button>
   </div>
 </div>
 
@@ -30,7 +29,10 @@
   <div id="results_area" class="main_area_item">
     <div id="filter_area">
       <h4>Filter</h4>
-      <input id="filter_bar" type="text" name="filterKeyword" (keyup)="onKey($event)">
+      <mat-form-field>
+        <mat-label>DOI or Title</mat-label>
+        <input matInput id="filter_bar" type="text" name="filterKeyword" (keyup)="onKey($event)">
+      </mat-form-field>
       <h4 *ngIf="content_ready">{{statistic}}</h4>
     </div>
     <div id="results">
@@ -89,105 +91,205 @@
     
   </div>
   <div id="options_area" class="main_area_item">
-    <h3>Options</h3>
+    <div id="options_area_wrapper">
+        <h3>Plotting Options</h3>
+        <div class="option">
+            <h4 class="option_heading">Main Data</h4>
+            <mat-form-field>
+              <mat-label>Nodes represent</mat-label>
+              <mat-select [(value)] = "mainDataOption">
+                <mat-option *ngFor="let option of mainDataOptions" [value]="option.value">
+                  {{option.viewValue}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+      
+          <div class="option">
+            <h4 class="option_heading">Data Grouping</h4>
+            <mat-form-field>
+              <mat-label>Group data according to </mat-label>
+              <mat-select [(value)] = "sortingOption">
+                <mat-option *ngFor="let option of dataSortingOptions" [value]="option.value">
+                  {{option.viewValue}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
 
-    <div class="option">
-      <h4 class="option_heading">Main Data</h4>
-      <mat-form-field>
-        <mat-label>Nodes represent</mat-label>
-        <mat-select [(value)] = "mainDataOption">
-          <mat-option *ngFor="let option of mainDataOptions" [value]="option.value">
-            {{option.viewValue}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
+          <div class="option">
+            <h4 class="option_heading">Number Of Nodes</h4>
+            <mat-form-field>
+              <mat-label>Number of nodes </mat-label>
+              <mat-select [(value)]="nodesOption">
+                <mat-option *ngFor="let option of noOfNodes" [value]="option.value">
+                  {{option.viewValue}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
 
-    <div class="option">
-      <h4 class="option_heading">Data Grouping</h4>
-      <mat-form-field>
-        <mat-label>Group data according to </mat-label>
-        <mat-select [(value)] = "sortingOption">
-          <mat-option *ngFor="let option of dataSortingOptions" [value]="option.value">
-            {{option.viewValue}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
+          <div class="option">
+            <h4 class="option_heading">Import Seed</h4>
+            <mat-form-field class="">
+              <mat-label>Seed Number</mat-label>
+              <input matInput id="seed_input" type="text" name="seed" #seed>
+            </mat-form-field>
+          </div>
 
-    <div class="option">
-      <h4 class="option_heading">Number Of Nodes</h4>
-      <mat-form-field>
-        <mat-label>Number of nodes </mat-label>
-        <mat-select [(value)]="nodesOption">
-          <mat-option *ngFor="let option of noOfNodes" [value]="option.value">
-            {{option.viewValue}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
+          <div class="option" *ngIf="content_ready">
+            <h4 class="option_heading">Export Seed</h4>
+            <div id="export_seed">
+              <button (click)="export_seed()">Click to export</button>
+              <p>Seed: {{get_seed()}}</p>
+            </div>
+          </div>
 
-    <div class="option">
-      <h4 class="option_heading">Import Seed</h4>
-      <input id="seed_input" type="text" name="seed" #seed>
+          <button mat-raised-button color="primary" id="plot_button"
+          (click)="plot_graph(mainDataOption, sortingOption, nodesOption, colorOption, seed.value)" 
+          >Plot</button>
     </div>
-    <div class="option" *ngIf="content_ready">
-      <h4 class="option_heading">Export Seed</h4>
-      <div id="export_seed">
-        <button (click)="export_seed()">Click to export</button>
-        <p>Seed: {{get_seed()}}</p>
+  </div>
+</div>
+
+<div id="under_area">
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Analyser
+      </mat-panel-title>
+      <mat-panel-description></mat-panel-description>
+      </mat-expansion-panel-header>
+      <div id="analyser_area">
+        <div id="time_slider_area" class="analyser_item">
+          <h4>Time Machine</h4>
+          <mat-slider id="time_slider" thumbLabel [displayWith]="sliderValue" (change)="sliderUpdateGraph($event)" min={{slider_min}} 
+          max={{slider_max}}  step={{slider_step}}  value={{slider_value}} ></mat-slider>
+        </div>
+        <div id="sphere_area" class="analyser_item">
+          <h4>Sphere of influence</h4>
+          <mat-form-field class="">
+            <input matInput id="sphere_input" type="text" name="sphere_input" value="10.1210/edrv-16-1-3" #sphere_input>
+          </mat-form-field>
+          <button mat-raised-button color="primary" class="analyser_button" 
+          (click)="sphere_influence(sphere_input.value)">Apply</button>
+        </div>
+
+        <div id="connection_area" class="analyser_item">
+          <h4>Find connection</h4>
+          Between
+          <mat-form-field class="">
+            <input matInput id="connection_input_1" type="text" name="connection_input_1" 
+            value="10.1038/nphys1170"  #connection_input_1>
+          </mat-form-field>
+          and
+          <mat-form-field class="">
+            <input matInput id="connection_input_2" type="text" name="connection_input_2" 
+            value="10.1088/1674-1056/22/6/060302" #connection_input_2>
+          </mat-form-field>
+        
+          <button mat-raised-button color="primary" class="analyser_button" 
+          (click)="find_connection(connection_input_1.value, connection_input_2.value)">Find</button>
+        </div>
+
+        <div id="2d_graph_area" class="analyser_item">
+          <h4>Plot 2d graph</h4>
+          x:
+          <mat-form-field>
+            <mat-label>Data for x axis</mat-label>
+              <mat-select [(value)]="graphOption_2d_x">
+                <mat-option *ngFor="let option of graphOptions_2d" [value]="option.value">
+                  {{option.viewValue}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            y:
+            <mat-form-field>
+              <mat-label>Data for y axis</mat-label>
+                <mat-select [(value)]="graphOption_2d_y">
+                  <mat-option *ngFor="let option of graphOptions_2d" [value]="option.value">
+                    {{option.viewValue}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <button mat-raised-button color="primary" class="analyser_button" (click)="plot_2d()">Plot</button>
+            </div>
+          </div>
+    </mat-expansion-panel>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Import and Export
+        </mat-panel-title>
+        <mat-panel-description></mat-panel-description>
+      </mat-expansion-panel-header>
+      <div id="import_export_area">
+        <textarea id="import_export_textarea" [(value)]="textArea" name="input_text" #input_text></textarea>
+        <button class="import_export_button" mat-stroked-button color="primary" (click)="import_data(input_text.value)">Import</button>
+        <button class="import_export_button" mat-stroked-button color="primary" (click)="export_data()">Export</button>
       </div>
+    </mat-expansion-panel>
+</div>
+
+<!-- <div id="under_area">
+  <div id="analyser_area">
+    <h3>Analyser</h3>
+    <div id="time_slider_area" class="analyser_item">
+      <h4>Time Machine</h4>
+      <mat-slider id="time_slider" thumbLabel [displayWith]="sliderValue" (change)="sliderUpdateGraph($event)" min={{slider_min}} 
+      max={{slider_max}}  step={{slider_step}}  value={{slider_value}} ></mat-slider>
+    </div>
+    <div id="sphere_area" class="analyser_item">
+      <h4>Sphere of influence</h4>
+      <mat-form-field class="">
+        <input matInput id="sphere_input" type="text" name="sphere_input" value="10.1210/edrv-16-1-3" #sphere_input>
+      </mat-form-field>
+      <button mat-raised-button color="primary" class="analyser_button" 
+      (click)="sphere_influence(sphere_input.value)">Apply</button>
+    </div>
+    <div id="connection_area" class="analyser_item">
+      <h4>Find connection</h4>
+      Between
+      <mat-form-field class="">
+        <input matInput id="connection_input_1" type="text" name="connection_input_1" 
+        value="10.1038/nphys1170"  #connection_input_1>
+      </mat-form-field>
+      and
+      <mat-form-field class="">
+        <input matInput id="connection_input_2" type="text" name="connection_input_2" 
+        value="10.1088/1674-1056/22/6/060302" #connection_input_2>
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" class="analyser_button" 
+      (click)="find_connection(connection_input_1.value, connection_input_2.value)">Find</button>
+    </div>
+    <div id="2d_graph_area" class="analyser_item">
+      <h4>Plot 2d graph</h4>
+      x:
+      <mat-form-field>
+        <mat-label>Data for x axis</mat-label>
+        <mat-select [(value)]="graphOption_2d_x">
+          <mat-option *ngFor="let option of graphOptions_2d" [value]="option.value">
+            {{option.viewValue}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      y:
+      <mat-form-field>
+        <mat-label>Data for y axis</mat-label>
+        <mat-select [(value)]="graphOption_2d_y">
+          <mat-option *ngFor="let option of graphOptions_2d" [value]="option.value">
+            {{option.viewValue}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-raised-button color="primary" class="analyser_button" (click)="plot_2d()">Plot</button>
+    </div>
+    <div id="import_export_area">
+      <h3>Import and Export</h3>
+      <textarea id="import_export_textarea" [(value)]="textArea" name="input_text" #input_text></textarea>
+      <button class="import_export_button" mat-stroked-button color="primary" (click)="import_data(input_text.value)">Import</button>
+      <button class="import_export_button" mat-stroked-button color="primary" (click)="export_data()">Export</button>
     </div>
   </div>
-</div>
-
-<div id="analyser_area">
-  <h3>Analyser</h3>
-  <div id="time_slider_area" class="analyser_item">
-    <h4>Time Machine</h4>
-    <mat-slider id="time_slider" thumbLabel [displayWith]="sliderValue" (change)="sliderUpdateGraph($event)" min={{slider_min}} 
-    max={{slider_max}}  step={{slider_step}}  value={{slider_value}} ></mat-slider>
-  </div>
-  <div id="sphere_area" class="analyser_item">
-    <h4>Sphere of influence</h4>
-    <input id="sphere_input" type="text" name="sphere_input" value="10.1210/edrv-16-1-3" #sphere_input>
-    <button class="analyser_button" (click)="sphere_influence(sphere_input.value)">Apply</button>
-  </div>
-  <div id="connection_area" class="analyser_item">
-    <h4>Find connection</h4>
-    Between
-    <input id="connection_input_1" type="text" name="connection_input_1" value="10.1038/nphys1170" #connection_input_1>
-    and
-    <input id="connection_input_2" type="text" name="connection_input_2" value="10.1088/1674-1056/22/6/060302" #connection_input_2>
-    <button class="analyser_button" (click)="find_connection(connection_input_1.value, connection_input_2.value)">Find</button>
-  </div>
-  <div id="2d_graph_area" class="analyser_item">
-    <h4>Plot 2d graph</h4>
-    x:
-    <mat-form-field>
-      <mat-label>Data for x axis</mat-label>
-      <mat-select [(value)]="graphOption_2d_x">
-        <mat-option *ngFor="let option of graphOptions_2d" [value]="option.value">
-          {{option.viewValue}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    y:
-    <mat-form-field>
-      <mat-label>Data for y axis</mat-label>
-      <mat-select [(value)]="graphOption_2d_y">
-        <mat-option *ngFor="let option of graphOptions_2d" [value]="option.value">
-          {{option.viewValue}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <button class="analyser_button" (click)="plot_2d()">Plot</button>
-  </div>
-</div>
-
-<div id="import_export_area">
-  <h3>Import and Export</h3>
-  <textarea id="import_export_textarea" [(value)]="textArea" name="input_text" #input_text></textarea>
-  <button (click)="import_data(input_text.value)">Import</button>
-  <button (click)="export_data()">Export</button>
-</div>
+</div> -->
