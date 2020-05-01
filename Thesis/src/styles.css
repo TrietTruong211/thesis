@@ -318,7 +318,8 @@ mat-form-field {
 .delete-tab-button {
     background: #3F51B5;
     border: none;
-    margin-left: 5px;
+    margin-left: 10px;
+    min-width: 0px;
 }
 
 .mat-tab-group.mat-primary .mat-ink-bar {
@@ -327,6 +328,11 @@ mat-form-field {
 
 .mat-tab-label {
     color: white;
+}
+
+.mat-raised-button {
+    margin-left: 10px;
+    min-width: 0px;
 }
 
 /* Time slide */

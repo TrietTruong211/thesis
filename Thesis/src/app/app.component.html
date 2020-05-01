@@ -78,7 +78,7 @@
       <mat-tab *ngFor="let tab of tabs; let index = index" [label]="tab">
         <ng-template mat-tab-label>
           {{tab}}
-          <button mat-raised-button class="delete-tab-button" 
+          <button class="delete-tab-button" mat-raised-button style="margin-left: 10px; min-width: 0px; line-height: 20px; padding: 5px"
             *ngIf="tab != 'mynetwork'"
             [disabled]="tabs.length === 1" 
             (click)="removeTab(index)">

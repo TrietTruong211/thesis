@@ -25,7 +25,7 @@ let all_group_legend: IHash = {}; //contains mapping from tab to group legend
 let all_graph_data: IHash = {}; //contains mapping from tab to the graph data of that tab
 let all_network: IHash = {}; //contains mapping from tab to the network of that tab
 let all_echart_data: IHash = {}; //contains mapping from tab to echart data of that tab
-
+let all_graph_data_array: IHash = {};
 
 
 export interface IHash {
@@ -317,10 +317,15 @@ export class PlottingService {
     }
     var container = document.getElementById('mynetwork');
 
+    // var data = {
+    //   nodes: new vis.DataSet(nodes),
+    //   edges: new vis.DataSet(edges)
+    // };
     var data = {
-      nodes: new vis.DataSet(nodes),
-      edges: new vis.DataSet(edges)
-    };
+      nodes: nodes,
+      edges: edges
+    }
+    all_graph_data_array[tabName] = data;
     this.plot_this(container, data, all_group_legend[tabName], tabName);
 
     // nodes_global = nodes;
@@ -349,31 +354,39 @@ export class PlottingService {
     }
   }
 
-  plot_imported_graph(nodes: any, edges: any, legend: any) {
-    // for (let i of nodes) {
-    //   var group_name = i.group;
-    //   if (grouping_map[group_name] == null) {
-    //     grouping_key.push(group_name);
-    //     grouping_map[group_name] = [];
-    //     group_legend[group_name] = {color: this.getRandomColor()};
-    //   }
-    //   grouping_map[group_name].push(i.id);
-    //   display_bools[i.id] = true;
-    // }
-    // group_legend = legend;
+  plot_imported_graph(nodes: any, edges: any, legend: any, tabName: string) {
+    all_grouping_key[tabName] = [];
+    all_grouping_map[tabName] = {};
+    all_display_bools[tabName] = {};
+    for (let i of nodes) {
+      var group_name = i.group;
+      if (all_grouping_map[tabName][group_name] == null) {
+        all_grouping_key[tabName].push(group_name);
+        all_grouping_map[tabName][group_name] = [];
+        // all_group_legend[tabName][group_name] = {color: this.getRandomColor()};
+      }
+      all_grouping_map[tabName][group_name].push(i.id);
+      all_display_bools[tabName][i.id] = true;
+    }
+    all_group_legend[tabName] = legend;
 
-    // var container = document.getElementById('mynetwork');
+    var container = document.getElementById('mynetwork');
 
     // var data = {
     //   nodes: new vis.DataSet(nodes),
     //   edges: new vis.DataSet(edges)
     // };
-    // this.plot_this(container, data, group_legend);
+
+    var data = {
+      nodes: nodes,
+      edges: edges
+    }
+    all_graph_data_array[tabName] = data;
+    this.plot_this(container, data, legend, tabName);
 
 
-    // console.log(nodes);
-    // console.log(JSON.stringify(nodes));
-    // network.clustering.clusterByConnection(node_id[0], anotherOption);
+    console.log(nodes);
+    console.log(JSON.stringify(nodes));
   }
 
   plot_graph_author(graph_id: string, author_name: string, sortingOption: string, tabName: string) {
@@ -415,18 +428,25 @@ export class PlottingService {
 
     var container = document.getElementById(graph_id);
 
+    // var data = {
+    //   nodes: new vis.DataSet(nodes),
+    //   edges: new vis.DataSet(edges)
+    // };
     var data = {
-      nodes: new vis.DataSet(nodes),
-      edges: new vis.DataSet(edges)
-    };
-
+      nodes: nodes,
+      edges: edges
+    }
+    all_graph_data_array[tabName] = data;
     this.plot_this(container, data, all_group_legend[tabName], tabName);
     // nodes_global = nodes;
     // edges_global = edges;
   }
 
   plot_this(container: any, data: any, group_legend: any, tabName: string) {
-    all_graph_data[tabName] = data;
+    all_graph_data[tabName] = {
+      nodes: new vis.DataSet(data.nodes),
+      edges: new vis.DataSet(data.edges)
+    }
     var options = {
       nodes: {
         shape: "dot",
@@ -565,6 +585,7 @@ export class AppComponent {
   current_graph_data = {};
   current_network;
   graph_data_back_up = [];
+  current_group_data_array = {};
           
   doSearch(DOI: HTMLInputElement) {
     this.openSnackBar("Getting data", "close");
@@ -589,7 +610,6 @@ export class AppComponent {
 
   select_node(nodeId: string) {
     this.current_network.selectNodes([nodeId]);
-    // current_network.showPopup(nodeId);
     var options = {
       scale: 1.0,
       offset: { x: 0, y: 0 },
@@ -620,7 +640,7 @@ export class AppComponent {
     return data_ready;
   }
 
-//TO BE OPTIMIZED
+
   select_group_node(groupId: string) {
     var list = [];
     this.current_grouping_map[groupId].forEach(element => {
@@ -629,7 +649,7 @@ export class AppComponent {
     this.current_network.selectNodes(list);
   }
 
-// TO BE OPTIMIZED
+
   get_grouping_result(key: string) {
     var newGroupingResult = []
     for (let doi of this.current_grouping_map[key]) {
@@ -638,12 +658,12 @@ export class AppComponent {
     // return grouping_map[key];
     return newGroupingResult;
   }
-// TO BE OPTIMIZED
+
   get_display_permission(DOI: string) {
     return this.current_display_bools[DOI];
   }
 
-//MAYBE TO BE OPTIMIZED
+
   onKey(event) {
     console.log(event.target.value);
     for (let doi of node_id) {
@@ -654,7 +674,7 @@ export class AppComponent {
       }
     }
   }
-// TO BE OPTIMIZED
+
   check_group_display_permission(key: string) {
     for (let doi of this.current_grouping_map[key]) {
       if (this.current_display_bools[doi]) return true;
@@ -678,14 +698,17 @@ export class AppComponent {
     console.log(input_text);
     var obj = JSON.parse('{' + input_text + '}');
     console.log(obj);
-    this.plottingService.plot_imported_graph(obj.nodes, obj.edges, obj.groups);
+    this.plottingService.plot_imported_graph(obj.nodes, obj.edges, obj.groups, this.tabs[this.selected.value]);
     this.statistic = this.current_total_items;
     this.content_ready = true;
   }
   export_data() {
-    this.textArea+='"nodes":' + JSON.stringify(this.current_graph_data["nodes"], undefined, 2);
+    // console.log(this.current_group_data_array["nodes"]);
+    // console.log(this.current_group_data_array["edges"]);
+    // console.log(this.current_group_legend);
+    this.textArea+='"nodes":' + JSON.stringify(this.current_group_data_array["nodes"], undefined, 2);
     this.textArea+=','
-    this.textArea+='"edges":' + JSON.stringify(this.current_graph_data["edges"], undefined, 2);
+    this.textArea+='"edges":' + JSON.stringify(this.current_group_data_array["edges"], undefined, 2);
     this.textArea+=','
     this.textArea+='"groups":' + JSON.stringify(this.current_group_legend, undefined, 2);
   }
@@ -771,7 +794,11 @@ export class AppComponent {
 
   //For author's results area
   get_author_results() {
-    return node_id_author;
+    var noticable_authors = [];
+    for (let author of node_id_author) {
+      if (author_to_doi_pointer[author].length > 1) noticable_authors.push(author);
+    }
+    return noticable_authors;
   }
 
   author_click(author_name: string) {
@@ -795,6 +822,7 @@ export class AppComponent {
     if (all_group_legend[this.selected_tab_name] == null) {all_group_legend[this.selected_tab_name] = {}};
     if (all_graph_data[this.selected_tab_name] == null) {all_graph_data[this.selected_tab_name] = {}};
     if (all_node_id_in_graph[this.selected_tab_name] == null) {all_node_id_in_graph[this.selected_tab_name] = []};
+    if (all_graph_data_array[this.selected_tab_name] == null) {all_graph_data_array[this.selected_tab_name] = {}};
 
     this.current_grouping_key = all_grouping_key[this.selected_tab_name];
     this.current_grouping_key.sort();
@@ -804,6 +832,7 @@ export class AppComponent {
     this.current_group_legend = all_group_legend[this.selected_tab_name];
     this.current_graph_data = all_graph_data[this.selected_tab_name];
     this.current_nodes_in_graph = all_node_id_in_graph[this.selected_tab_name];
+    this.current_group_data_array = all_graph_data_array[this.selected_tab_name];
 
     if (all_network[this.selected_tab_name] != null) 
     this.current_network = all_network[this.selected_tab_name];
