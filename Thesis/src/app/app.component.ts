@@ -27,6 +27,10 @@ let all_network: IHash = {}; //contains mapping from tab to the network of that 
 let all_echart_data: IHash = {}; //contains mapping from tab to echart data of that tab
 let all_graph_data_array: IHash = {};
 
+//graph scalling
+let noOfCitation_scale = 20;
+let publishTime_scale = 5; 
+
 
 export interface IHash {
   [details: string]: any;
@@ -41,7 +45,7 @@ export class SearchService {
   apiRoot: string = 'https://opencitations.net/index/coci/api/v1/metadata';
   apiRoot2: string = 'https://api.crossref.org/works';
 
-  quota = 10;
+  quota = 300;
   counter = 0;
   pending_results = 0;
 
@@ -317,30 +321,24 @@ export class PlottingService {
     }
     var container = document.getElementById('mynetwork');
 
-    // var data = {
-    //   nodes: new vis.DataSet(nodes),
-    //   edges: new vis.DataSet(edges)
-    // };
     var data = {
       nodes: nodes,
       edges: edges
     }
     all_graph_data_array[tabName] = data;
     this.plot_this(container, data, all_group_legend[tabName], tabName);
-
-    // nodes_global = nodes;
-    // edges_global = edges;
   }
 
   get_group(index: string, selection: String) {
     switch(selection) {
       case "publishTime": 
         if (alldata[index].year == '') return "Undefined";
-        return Math.floor(alldata[index].year / 5) * 5 + "-" + (Math.floor(alldata[index].year / 5) * 5 + 4);
+        return Math.floor(alldata[index].year / publishTime_scale) * publishTime_scale + "-" 
+        + (Math.floor(alldata[index].year / publishTime_scale) * publishTime_scale + publishTime_scale-1);
       case "noOfCitation":
-        var n = Math.floor(alldata[index].citation_count / 100);
-        if (n > 5) return  n*100 + "+";
-        return n*100 + "-" + (n + 1)*100;
+        var n = Math.floor(alldata[index].citation_count / noOfCitation_scale);
+        if (n > 5) return  n*noOfCitation_scale + "+";
+        return n*noOfCitation_scale + "-" + (n + 1)*noOfCitation_scale;
       case "author":
         return alldata[index].author;
       case "publisher":
@@ -492,6 +490,17 @@ export class PlottingService {
     };
     // if (+seed != 0) options.layout.randomSeed = Number(seed);
     var network = new vis.Network(container, all_graph_data[tabName], options);
+    network.on("doubleClick", function(params) {
+      console.log("Double clicked on node");
+      params.event = "[original event]";
+      const el = document.createElement('textarea');
+        el.value = this.getNodeAt(params.pointer.DOM);
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+      console.log( this.getNodeAt(params.pointer.DOM));
+    });
 
     all_network[tabName] = network;
   }
@@ -556,12 +565,14 @@ export class AppComponent {
     {value: 'customize', viewValue: 'Customize'}
   ]
 
-  graphOptions_2d = [
+  graphOptions_2d_x = [
     {value: 'doi', viewValue: "DOI"},
     {value: 'publishTime', viewValue: 'Publish Time'},
-    {value: 'noOfCitation', viewValue: 'Popularity'},
-    {value: 'topic', viewValue: 'Topic'},
-    {value: 'type', viewValue: 'Publish Type'}
+    {value: 'topic', viewValue: 'Topic'}
+  ]
+
+  graphOptions_2d_y = [
+    {value: 'noOfCitation', viewValue: 'Popularity'}
   ]
 
   mainDataOption = "doi";
@@ -575,6 +586,7 @@ export class AppComponent {
   statistic = "";
   seed = undefined;
   textArea = "";
+  textAreaData = "";
 
   current_nodes_in_graph = []; //
   current_grouping_key = []; //contains all group ids
@@ -694,7 +706,7 @@ export class AppComponent {
 
 
   //Data import and export
-  import_data(input_text: string) {
+  import_graph_data(input_text: string) {
     console.log(input_text);
     var obj = JSON.parse('{' + input_text + '}');
     console.log(obj);
@@ -702,21 +714,63 @@ export class AppComponent {
     this.statistic = this.current_total_items;
     this.content_ready = true;
   }
-  export_data() {
-    // console.log(this.current_group_data_array["nodes"]);
-    // console.log(this.current_group_data_array["edges"]);
-    // console.log(this.current_group_legend);
+  export_graph_data() {
     this.textArea+='"nodes":' + JSON.stringify(this.current_group_data_array["nodes"], undefined, 2);
     this.textArea+=','
     this.textArea+='"edges":' + JSON.stringify(this.current_group_data_array["edges"], undefined, 2);
     this.textArea+=','
     this.textArea+='"groups":' + JSON.stringify(this.current_group_legend, undefined, 2);
   }
+  import_data(input_text: string) {
+    var obj = JSON.parse('{' + input_text + '}');
+    node_id = obj.nodeid;
+    alldata = obj.alldata;
+    alldata_crossref = obj.alldatacrossref;
+    this.process_imported_data();
+    data_ready = true;
+    this.updateTab()
+  }
+
+  process_imported_data() {
+    for(let DOI of node_id) {
+      if (mapping[DOI] == null) {
+        mapping[DOI] = [];
+      }
+      if (alldata[DOI].citation.length != 0) {
+        var citations = alldata[DOI].citation.split(';');
+        for (let i of citations) {
+          i = i.replace(/\s/g, '');
+          queue.push(i);
+          if (mapping[DOI].indexOf(i) < 0){
+            mapping[DOI].push(i);
+          }
+        }
+      }
+      for (let author of alldata_crossref[DOI].author) {
+        let fullname = author.given + " " + author.family;
+        if (node_id_author.indexOf(fullname) <= -1) {
+          node_id_author.push(fullname);
+        }
+        if (author_to_doi_pointer[fullname] == null) {
+          author_to_doi_pointer[fullname] = [];
+        }
+        author_to_doi_pointer[fullname].push(DOI);
+      }
+    }
+  }
+
+  export_data() {
+    this.textAreaData+='"nodeid":' + JSON.stringify(node_id, undefined, 2);
+    this.textAreaData+=','
+    this.textAreaData+='"alldata":' + JSON.stringify(alldata, undefined, 2);
+    this.textAreaData+=','
+    this.textAreaData+='"alldatacrossref":' + JSON.stringify(alldata_crossref, undefined, 2);
+  }
 
   //Sphere of influence
   sphere_influence(input_text: string) {
     console.log(input_text);
-    this.current_graph_data["edges"].update({from: input_text, to: input_text, selfReferenceSize: 270});
+    this.current_graph_data["edges"].update({from: input_text, to: input_text, selfReferenceSize: 300});
   }
 
   //Find connection
@@ -730,6 +784,9 @@ export class AppComponent {
       selected_list = list2;
     } else {
       console.log("Can't find path");
+      this._snackBar.open("Can't find connection", "close", {
+        duration: 2000,
+      });
     }
 
     if (selected_list) {
@@ -886,50 +943,19 @@ export class AppComponent {
 
   //2d grap plotting
   plot_2d () {
-    var new_2d_tab_name = this.selected_tab_name+"2d";
-    if (!this.tabs.includes(new_2d_tab_name)) this.tabs.push(new_2d_tab_name);
-    this.selected.setValue(this.tabs.length - 1);
-    this.selected_tab_name = this.tabs[this.selected.value];
+    // var new_2d_tab_name = this.selected_tab_name+"2d";
+    var new_2d_tab_name = this.graphOption_2d_x + " stats";
+    if (!this.tabs.includes(new_2d_tab_name)) {
+      this.tabs.push(new_2d_tab_name);
+      this.selected.setValue(this.tabs.length - 1);
+      this.selected_tab_name = this.tabs[this.selected.value];
+    } else {
+      this.selected.setValue(this.tabs.indexOf(new_2d_tab_name));
+      this.selected_tab_name = this.tabs[this.selected.value];
+    }
     
     var xdata = [];
     var ydata = [];
-
-    // {value: 'publishTime', viewValue: 'Publish Time'},
-    // {value: 'noOfCitation', viewValue: 'Popularity'},
-    // {value: 'topic', viewValue: 'Topic'},
-    // {value: 'type', viewValue: 'Publish Type'}
-    if (this.graphOption_2d_x == "doi" && this.graphOption_2d_y == "noOfCitation") {
-      for (let doi of this.current_nodes_in_graph) {
-        xdata.push(doi);
-        ydata.push(alldata[doi].citation_count);
-      }
-    } else if (this.graphOption_2d_x == "publishTime" && this.graphOption_2d_y == "noOfCitation") {
-      for (let doi of this.current_nodes_in_graph) {
-        xdata.push(alldata[doi].year);
-        ydata.push(alldata[doi].citation_count);
-      }
-    } else if (this.graphOption_2d_x == "topic" && this.graphOption_2d_y == "noOfCitation") {
-      var topicHash = {};
-      for (let doi of this.current_nodes_in_graph) {
-        if (!xdata.includes(alldata_crossref[doi]["short-container-title"][0])) {
-          xdata.push(alldata_crossref[doi]["short-container-title"][0]);
-          topicHash[alldata_crossref[doi]["short-container-title"][0]] = 0;
-        } else {
-          topicHash[alldata_crossref[doi]["short-container-title"][0]] ++;
-        }
-      }
-      for (let x of xdata) {
-        ydata.push(topicHash[x]);
-      }
-    } else if (this.graphOption_2d_x == "type" && this.graphOption_2d_y == "noOfCitation") {
-      for (let doi of this.current_nodes_in_graph) {
-        xdata.push(alldata[doi].year);
-        ydata.push(alldata[doi].citation_count);
-      }
-    } else {
-      return
-    }
-
 
     var chartOption = {
       xAxis: {
@@ -943,6 +969,51 @@ export class AppComponent {
         data: ydata,
         type: 'bar'
       }]
+    }
+    
+    if (this.graphOption_2d_x == "doi" && this.graphOption_2d_y == "noOfCitation") {
+      for (let doi of this.current_nodes_in_graph) {
+        xdata.push(doi);
+        ydata.push(alldata[doi].citation_count);
+      }
+      chartOption.xAxis["axisLabel"] = {rotate: 20, fontSize: 7};
+      chartOption.xAxis["name"] = 'DOI';
+      chartOption.yAxis["name"] = 'No Of Citations';
+    } else if (this.graphOption_2d_x == "publishTime" && this.graphOption_2d_y == "noOfCitation") {
+      for (let doi of this.current_nodes_in_graph) {
+        if (xdata.includes(alldata[doi].year)) {
+          ydata[xdata.indexOf(alldata[doi].year)] ++;
+        } else {
+          xdata.push(alldata[doi].year);
+          ydata.push(1);
+        }
+      }
+      chartOption.series = [{data: ydata, type: 'line'}]
+      chartOption.xAxis["name"] = 'Year';
+      chartOption.yAxis["name"] = 'No of Papers';
+    } else if (this.graphOption_2d_x == "topic" && this.graphOption_2d_y == "noOfCitation") {
+      var topicHash = {};
+      for (let doi of this.current_nodes_in_graph) {
+        console.log(alldata_crossref[doi]["short-container-title"][0]);
+        if (!xdata.includes(alldata_crossref[doi]["short-container-title"][0])) {
+          xdata.push(alldata_crossref[doi]["short-container-title"][0]);
+          topicHash[alldata_crossref[doi]["short-container-title"][0]] = 1;
+        } else {
+          topicHash[alldata_crossref[doi]["short-container-title"][0]] ++;
+        }
+      }
+      for (let x of xdata) {
+        ydata.push(topicHash[x]);
+      }
+      chartOption.xAxis["axisLabel"] = {rotate: 20, fontSize: 8};
+      chartOption.xAxis["name"] = 'Topic';
+      chartOption.yAxis["name"] = 'No Of Papers';
+    } else if (this.graphOption_2d_x == "type" && this.graphOption_2d_y == "noOfCitation") {
+      for (let doi of this.current_nodes_in_graph) {
+        // TODO
+      }
+    } else {
+      return
     }
 
     all_echart_data[new_2d_tab_name] = chartOption;

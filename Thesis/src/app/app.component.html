@@ -64,7 +64,7 @@
       </div>
       
       <div id="author_results">
-        <h4>Author Results</h4>
+        <h4>Noticeable Authors</h4>
         <mat-list class="results_mat_list" role="list" *ngIf="content_ready">
           <mat-list-item class="result_mat_list_item" *ngFor="let author_name of get_author_results()">
             <button class="result_item_item" (click)="author_click(author_name)">{{author_name}}</button>
@@ -198,7 +198,7 @@
           <mat-form-field>
             <mat-label>Data for x axis</mat-label>
               <mat-select [(value)]="graphOption_2d_x">
-                <mat-option *ngFor="let option of graphOptions_2d" [value]="option.value">
+                <mat-option *ngFor="let option of graphOptions_2d_x" [value]="option.value">
                   {{option.viewValue}}
                 </mat-option>
               </mat-select>
@@ -207,7 +207,7 @@
             <mat-form-field>
               <mat-label>Data for y axis</mat-label>
                 <mat-select [(value)]="graphOption_2d_y">
-                  <mat-option *ngFor="let option of graphOptions_2d" [value]="option.value">
+                  <mat-option *ngFor="let option of graphOptions_2d_y" [value]="option.value">
                     {{option.viewValue}}
                   </mat-option>
                 </mat-select>
@@ -219,77 +219,27 @@
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>
-          Import and Export
+          Import and Export graph
         </mat-panel-title>
         <mat-panel-description></mat-panel-description>
       </mat-expansion-panel-header>
       <div id="import_export_area">
-        <textarea id="import_export_textarea" [(value)]="textArea" name="input_text" #input_text></textarea>
-        <button class="import_export_button" mat-stroked-button color="primary" (click)="import_data(input_text.value)">Import</button>
-        <button class="import_export_button" mat-stroked-button color="primary" (click)="export_data()">Export</button>
+        <textarea id="import_export_textarea" [(value)]="textArea" name="input_text_graph" #input_text></textarea>
+        <button class="import_export_button" mat-stroked-button color="primary" (click)="import_graph_data(input_text_graph.value)">Import Graph</button>
+        <button class="import_export_button" mat-stroked-button color="primary" (click)="export_graph_data()">Export Graph</button>
+      </div>
+    </mat-expansion-panel>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Import and Export data
+        </mat-panel-title>
+        <mat-panel-description></mat-panel-description>
+      </mat-expansion-panel-header>
+      <div id="import_export_area">
+        <textarea id="import_export_textarea" [(value)]="textAreaData" name="input_text" #input_text></textarea>
+        <button class="import_export_button" mat-stroked-button color="primary" (click)="import_data(input_text.value)">Import Data</button>
+        <button class="import_export_button" mat-stroked-button color="primary" (click)="export_data()">Export Data</button>
       </div>
     </mat-expansion-panel>
 </div>
-
-<!-- <div id="under_area">
-  <div id="analyser_area">
-    <h3>Analyser</h3>
-    <div id="time_slider_area" class="analyser_item">
-      <h4>Time Machine</h4>
-      <mat-slider id="time_slider" thumbLabel [displayWith]="sliderValue" (change)="sliderUpdateGraph($event)" min={{slider_min}} 
-      max={{slider_max}}  step={{slider_step}}  value={{slider_value}} ></mat-slider>
-    </div>
-    <div id="sphere_area" class="analyser_item">
-      <h4>Sphere of influence</h4>
-      <mat-form-field class="">
-        <input matInput id="sphere_input" type="text" name="sphere_input" value="10.1210/edrv-16-1-3" #sphere_input>
-      </mat-form-field>
-      <button mat-raised-button color="primary" class="analyser_button" 
-      (click)="sphere_influence(sphere_input.value)">Apply</button>
-    </div>
-    <div id="connection_area" class="analyser_item">
-      <h4>Find connection</h4>
-      Between
-      <mat-form-field class="">
-        <input matInput id="connection_input_1" type="text" name="connection_input_1" 
-        value="10.1038/nphys1170"  #connection_input_1>
-      </mat-form-field>
-      and
-      <mat-form-field class="">
-        <input matInput id="connection_input_2" type="text" name="connection_input_2" 
-        value="10.1088/1674-1056/22/6/060302" #connection_input_2>
-      </mat-form-field>
-
-      <button mat-raised-button color="primary" class="analyser_button" 
-      (click)="find_connection(connection_input_1.value, connection_input_2.value)">Find</button>
-    </div>
-    <div id="2d_graph_area" class="analyser_item">
-      <h4>Plot 2d graph</h4>
-      x:
-      <mat-form-field>
-        <mat-label>Data for x axis</mat-label>
-        <mat-select [(value)]="graphOption_2d_x">
-          <mat-option *ngFor="let option of graphOptions_2d" [value]="option.value">
-            {{option.viewValue}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-      y:
-      <mat-form-field>
-        <mat-label>Data for y axis</mat-label>
-        <mat-select [(value)]="graphOption_2d_y">
-          <mat-option *ngFor="let option of graphOptions_2d" [value]="option.value">
-            {{option.viewValue}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-      <button mat-raised-button color="primary" class="analyser_button" (click)="plot_2d()">Plot</button>
-    </div>
-    <div id="import_export_area">
-      <h3>Import and Export</h3>
-      <textarea id="import_export_textarea" [(value)]="textArea" name="input_text" #input_text></textarea>
-      <button class="import_export_button" mat-stroked-button color="primary" (click)="import_data(input_text.value)">Import</button>
-      <button class="import_export_button" mat-stroked-button color="primary" (click)="export_data()">Export</button>
-    </div>
-  </div>
-</div> -->
