@@ -324,10 +324,16 @@ mat-form-field {
 
 .mat-tab-group.mat-primary .mat-ink-bar {
     background-color: #E91E63;
+    height: 3px;
 }
 
 .mat-tab-label {
     color: white;
+    min-width: 0px !important;
+}
+
+.mat-tab-label-active {
+    opacity: 1;
 }
 
 .mat-raised-button {

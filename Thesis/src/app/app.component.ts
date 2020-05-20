@@ -45,7 +45,7 @@ export class SearchService {
   apiRoot: string = 'https://opencitations.net/index/coci/api/v1/metadata';
   apiRoot2: string = 'https://api.crossref.org/works';
 
-  quota = 10;
+  quota = 100;
   counter = 0;
   pending_results = 0;
 
@@ -289,10 +289,6 @@ export class PlottingService {
           for (let author2 of alldata_crossref[doi].author) {
             let fullname1 = this.get_full_name(author);
             let fullname2 = this.get_full_name(author2);
-            // if (author != author2 
-            //   && edges.indexOf({from: fullname2, to: fullname1}) <= -1
-            //   && edges.indexOf({from: fullname1, to: fullname2}) <= -1) 
-            //   edges.push({from: fullname1, to: fullname2});
             if (author != author2) {
               if (edges.some(e => e.id === fullname1+fullname2) || edges.some(e => e.id === fullname2+fullname1)) {
                 // do nothing
@@ -300,13 +296,6 @@ export class PlottingService {
                 edges.push({id: fullname1+fullname2, from: fullname1, to: fullname2});
               }
             }
-            // if (author != author2 
-            //   && combinations.indexOf((fullname1+fullname2)) <= -1 
-            //   && combinations.indexOf((fullname2+fullname1)) <= -1) {
-            //     edges.push({from: fullname1, to: fullname2});
-            //     combinations.push(fullname1+fullname2);
-            //     combinations.push(fullname2+fullname1);
-            //   }
           }
         }
       }
@@ -327,7 +316,7 @@ export class PlottingService {
         for (let j of mapping[i]) {
           edges.push({id: i+"|"+j, from: i, to: j, title:"from "+i+" to "+j});
         }
-        // edges.push({from: i, to: i, selfReferenceSize: 250});
+
         all_display_bools[tabName][i] = true;
         node_counter++;
         if (node_counter > nodesOption) break;
@@ -335,7 +324,8 @@ export class PlottingService {
       //Counting total items
       all_total_items[tabName] = nodes.length + " items (" + all_grouping_key[tabName].length + " groups)";
     }
-    var container = document.getElementById('mynetwork');
+    // var container = document.getElementById('mynetwork');
+    var container = document.getElementById(tabName);
 
     var data = {
       nodes: nodes,
@@ -850,11 +840,12 @@ export class AppComponent {
   }
 
   addTab(selectAfterAdding: boolean) {
-    this.tabs.push('New');
-
-    if (selectAfterAdding) {
-      this.selected.setValue(this.tabs.length - 1);
-    }
+    this.tabs.push('NewTab' + (this.tabs.length - 1));
+    this.selected.setValue(this.tabs.length - 2);
+    this.selected_tab_name = this.tabs[this.selected.value];
+    // if (selectAfterAdding) {
+    //   this.selected.setValue(this.tabs.length - 2);
+    // }
   }
 
   removeTab(index: number) {
@@ -963,8 +954,8 @@ export class AppComponent {
     var new_2d_tab_name = this.graphOption_2d_x + " stats";
     if (!this.tabs.includes(new_2d_tab_name)) {
       this.tabs.push(new_2d_tab_name);
-      this.selected.setValue(this.tabs.length - 1);
-      this.selected_tab_name = this.tabs[this.selected.value];
+      // this.selected.setValue(this.tabs.length - 1);
+      // this.selected_tab_name = this.tabs[this.selected.value];
     } else {
       this.selected.setValue(this.tabs.indexOf(new_2d_tab_name));
       this.selected_tab_name = this.tabs[this.selected.value];
@@ -997,13 +988,25 @@ export class AppComponent {
       chartOption.yAxis["name"] = 'No Of Citations';
     } else if (this.graphOption_2d_x == "publishTime" && this.graphOption_2d_y == "noOfCitation") {
       for (let doi of this.current_nodes_in_graph) {
-        if (xdata.includes(alldata[doi].year)) {
-          ydata[xdata.indexOf(alldata[doi].year)] ++;
-        } else {
+        if (!xdata.includes(alldata[doi].year)) {
           xdata.push(alldata[doi].year);
-          ydata.push(1);
         }
       }
+      xdata.sort();
+      for (let year of xdata) {
+        ydata.push(0);
+      }
+      for (let doi of this.current_nodes_in_graph) {
+        ydata[xdata.indexOf(alldata[doi].year)] ++;
+      }
+      // for (let doi of this.current_nodes_in_graph) {
+      //   if (xdata.includes(alldata[doi].year)) {
+      //     ydata[xdata.indexOf(alldata[doi].year)] ++;
+      //   } else {
+      //     xdata.push(alldata[doi].year);
+      //     ydata.push(1);
+      //   }
+      // }
       chartOption.series = [{data: ydata, type: 'line'}]
       chartOption.xAxis["name"] = 'Year';
       chartOption.yAxis["name"] = 'No of Papers';
