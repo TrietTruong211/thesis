@@ -87,6 +87,13 @@
         </ng-template>
         <div [id]="tab" echarts [options]="getEchartData(tab)" class="network"></div>
       </mat-tab>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <button class="delete-tab-button">
+            New Tab
+          </button>
+        </ng-template>
+      </mat-tab>
     </mat-tab-group>
     
   </div>

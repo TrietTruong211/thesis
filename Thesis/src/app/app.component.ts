@@ -45,7 +45,7 @@ export class SearchService {
   apiRoot: string = 'https://opencitations.net/index/coci/api/v1/metadata';
   apiRoot2: string = 'https://api.crossref.org/works';
 
-  quota = 300;
+  quota = 10;
   counter = 0;
   pending_results = 0;
 
@@ -283,14 +283,30 @@ export class PlottingService {
         nodes.push({id: author_name, label: '', title: this.getStringAuthor(author_name)});
         all_node_id_in_graph[tabName].push(author_name);
       }
+      var combinations = [];
       for (let doi of node_id) {
         for (let author of alldata_crossref[doi].author) {
           for (let author2 of alldata_crossref[doi].author) {
             let fullname1 = this.get_full_name(author);
             let fullname2 = this.get_full_name(author2);
-            if (author != author2 && edges.indexOf({from: fullname2, to: fullname1}) <= -1
-            && edges.indexOf({from: fullname1, to: fullname2}) <= -1) 
-              edges.push({from: fullname1, to: fullname2});
+            // if (author != author2 
+            //   && edges.indexOf({from: fullname2, to: fullname1}) <= -1
+            //   && edges.indexOf({from: fullname1, to: fullname2}) <= -1) 
+            //   edges.push({from: fullname1, to: fullname2});
+            if (author != author2) {
+              if (edges.some(e => e.id === fullname1+fullname2) || edges.some(e => e.id === fullname2+fullname1)) {
+                // do nothing
+              } else {
+                edges.push({id: fullname1+fullname2, from: fullname1, to: fullname2});
+              }
+            }
+            // if (author != author2 
+            //   && combinations.indexOf((fullname1+fullname2)) <= -1 
+            //   && combinations.indexOf((fullname2+fullname1)) <= -1) {
+            //     edges.push({from: fullname1, to: fullname2});
+            //     combinations.push(fullname1+fullname2);
+            //     combinations.push(fullname2+fullname1);
+            //   }
           }
         }
       }
