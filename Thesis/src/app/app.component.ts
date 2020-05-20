@@ -230,7 +230,7 @@ export class SearchService {
 
 @Injectable()
 export class PlottingService {
-  constructor(private service: SearchService) {}
+  constructor(private service: SearchService, private _snackBar: MatSnackBar) {}
 
   doSearch(DOI: HTMLInputElement) {
     this.service.begin_search(DOI);
@@ -367,7 +367,6 @@ export class PlottingService {
       if (all_grouping_map[tabName][group_name] == null) {
         all_grouping_key[tabName].push(group_name);
         all_grouping_map[tabName][group_name] = [];
-        // all_group_legend[tabName][group_name] = {color: this.getRandomColor()};
       }
       all_grouping_map[tabName][group_name].push(i.id);
       all_display_bools[tabName][i.id] = true;
@@ -375,11 +374,6 @@ export class PlottingService {
     all_group_legend[tabName] = legend;
 
     var container = document.getElementById('mynetwork');
-
-    // var data = {
-    //   nodes: new vis.DataSet(nodes),
-    //   edges: new vis.DataSet(edges)
-    // };
 
     var data = {
       nodes: nodes,
@@ -432,18 +426,12 @@ export class PlottingService {
 
     var container = document.getElementById(graph_id);
 
-    // var data = {
-    //   nodes: new vis.DataSet(nodes),
-    //   edges: new vis.DataSet(edges)
-    // };
     var data = {
       nodes: nodes,
       edges: edges
     }
     all_graph_data_array[tabName] = data;
     this.plot_this(container, data, all_group_legend[tabName], tabName);
-    // nodes_global = nodes;
-    // edges_global = edges;
   }
 
   plot_this(container: any, data: any, group_legend: any, tabName: string) {
@@ -500,12 +488,15 @@ export class PlottingService {
       console.log("Double clicked on node");
       params.event = "[original event]";
       const el = document.createElement('textarea');
-        el.value = this.getNodeAt(params.pointer.DOM);
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-      console.log( this.getNodeAt(params.pointer.DOM));
+      el.value = this.getNodeAt(params.pointer.DOM);
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      // console.log( this.getNodeAt(params.pointer.DOM));
+      this._snackBar.open("DOI copied!", "close", {
+        duration: 2000,
+      });
     });
 
     all_network[tabName] = network;
@@ -539,7 +530,8 @@ export class PlottingService {
 })
 
 export class AppComponent {
-  constructor(private plottingService: PlottingService, private _snackBar: MatSnackBar) {}
+  constructor(private plottingService: PlottingService, private _snackBar: MatSnackBar) {
+  }
 
   mainDataOptions = [
     {value: 'doi', viewValue: "DOI"},
@@ -719,6 +711,7 @@ export class AppComponent {
     this.plottingService.plot_imported_graph(obj.nodes, obj.edges, obj.groups, this.tabs[this.selected.value]);
     this.statistic = this.current_total_items;
     this.content_ready = true;
+    this.openSnackBar("Graph imported", "close");
   }
   export_graph_data() {
     this.textArea+='"nodes":' + JSON.stringify(this.current_group_data_array["nodes"], undefined, 2);
@@ -726,6 +719,7 @@ export class AppComponent {
     this.textArea+='"edges":' + JSON.stringify(this.current_group_data_array["edges"], undefined, 2);
     this.textArea+=','
     this.textArea+='"groups":' + JSON.stringify(this.current_group_legend, undefined, 2);
+    this.openSnackBar("Graph exported", "close");
   }
   import_data(input_text: string) {
     var obj = JSON.parse('{' + input_text + '}');
@@ -735,6 +729,7 @@ export class AppComponent {
     this.process_imported_data();
     data_ready = true;
     this.updateTab()
+    this.openSnackBar("Data imported", "close");
   }
 
   process_imported_data() {
@@ -771,6 +766,10 @@ export class AppComponent {
     this.textAreaData+='"alldata":' + JSON.stringify(alldata, undefined, 2);
     this.textAreaData+=','
     this.textAreaData+='"alldatacrossref":' + JSON.stringify(alldata_crossref, undefined, 2);
+    this._snackBar.open("Data exported!", "close", {
+      duration: 2000,
+    });
+    this.openSnackBar("Data exported", "close");
   }
 
   //Sphere of influence
@@ -790,9 +789,7 @@ export class AppComponent {
       selected_list = list2;
     } else {
       console.log("Can't find path");
-      this._snackBar.open("Can't find connection", "close", {
-        duration: 2000,
-      });
+      this.openSnackBar("Can't find connection", "close");
     }
 
     if (selected_list) {
@@ -807,6 +804,7 @@ export class AppComponent {
         list_edge.push(e);
       }
       this.current_network.selectEdges(list_edge);
+      this.openSnackBar("Connection found", "close");
     }
   }
   recursive_traverse(target: string, node: string) {
@@ -831,7 +829,7 @@ export class AppComponent {
 
   //Tabs for multiple graphs
 
-  tabs = ['mynetwork'];
+  tabs = ['MainNetwork'];
   selected = new FormControl(0);
   selected_tab_name = this.tabs[this.selected.value];
 
@@ -840,16 +838,17 @@ export class AppComponent {
   }
 
   addTab(selectAfterAdding: boolean) {
-    this.tabs.push('NewTab' + (this.tabs.length - 1));
-    this.selected.setValue(this.tabs.length - 2);
+    this.tabs.push('Network' + (this.tabs.length - 1));
+    this.selected.setValue(this.tabs.length - 1);
     this.selected_tab_name = this.tabs[this.selected.value];
-    // if (selectAfterAdding) {
-    //   this.selected.setValue(this.tabs.length - 2);
-    // }
+    this.openSnackBar("Added new tab", "close");
   }
 
   removeTab(index: number) {
     this.tabs.splice(index, 1);
+    this.selected.setValue(this.tabs.length - 1);
+    this.selected_tab_name = this.tabs[this.selected.value];
+    this.openSnackBar("Tab removed", "close");
   }
 
   getTabName(index: number) {
@@ -951,11 +950,11 @@ export class AppComponent {
   //2d grap plotting
   plot_2d () {
     // var new_2d_tab_name = this.selected_tab_name+"2d";
-    var new_2d_tab_name = this.graphOption_2d_x + " stats";
+    var new_2d_tab_name = this.graphOption_2d_x + "-stats" + (this.tabs.length - 1);
     if (!this.tabs.includes(new_2d_tab_name)) {
       this.tabs.push(new_2d_tab_name);
-      // this.selected.setValue(this.tabs.length - 1);
-      // this.selected_tab_name = this.tabs[this.selected.value];
+      this.selected.setValue(this.tabs.length - 1);
+      this.selected_tab_name = this.tabs[this.selected.value];
     } else {
       this.selected.setValue(this.tabs.indexOf(new_2d_tab_name));
       this.selected_tab_name = this.tabs[this.selected.value];
@@ -999,14 +998,6 @@ export class AppComponent {
       for (let doi of this.current_nodes_in_graph) {
         ydata[xdata.indexOf(alldata[doi].year)] ++;
       }
-      // for (let doi of this.current_nodes_in_graph) {
-      //   if (xdata.includes(alldata[doi].year)) {
-      //     ydata[xdata.indexOf(alldata[doi].year)] ++;
-      //   } else {
-      //     xdata.push(alldata[doi].year);
-      //     ydata.push(1);
-      //   }
-      // }
       chartOption.series = [{data: ydata, type: 'line'}]
       chartOption.xAxis["name"] = 'Year';
       chartOption.yAxis["name"] = 'No of Papers';
@@ -1036,6 +1027,7 @@ export class AppComponent {
     }
 
     all_echart_data[new_2d_tab_name] = chartOption;
+    this.openSnackBar("Plotted statistic graph", "close");
   }
 
   getEchartData(tabName: string) {

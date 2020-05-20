@@ -320,6 +320,8 @@ mat-form-field {
     border: none;
     margin-left: 10px;
     min-width: 0px;
+    font-size: 1.5em;
+    box-shadow: none !important;
 }
 
 .mat-tab-group.mat-primary .mat-ink-bar {
@@ -339,6 +341,11 @@ mat-form-field {
 .mat-raised-button {
     margin-left: 10px;
     min-width: 0px;
+}
+
+
+#add-tab-button {
+    background: #E91E63;
 }
 
 /* Time slide */
