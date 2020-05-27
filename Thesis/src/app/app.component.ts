@@ -250,11 +250,11 @@ export class PlottingService {
     let res = '';
     res = res + 'Name:' + fullname + '<br/>';
 
-    res = res + 'Worked on:';
+    res = res + 'Worked on:' + '<br/>';
     for (let doi of author_to_doi_pointer[fullname]) {
-      res = res + doi + ';'
+      res = res + doi + '<br/>'
     }
-    res = res + '<br/>';
+    // res = res + '<br/>';
     return res;
   }
 
@@ -280,10 +280,10 @@ export class PlottingService {
 
     if (mainData == 'author') {
       for (let author_name of node_id_author) {
-        nodes.push({id: author_name, label: '', title: this.getStringAuthor(author_name)});
+        nodes.push({id: author_name, label: '', title: this.getStringAuthor(author_name), 
+        value: author_to_doi_pointer[author_name].length});
         all_node_id_in_graph[tabName].push(author_name);
       }
-      var combinations = [];
       for (let doi of node_id) {
         for (let author of alldata_crossref[doi].author) {
           for (let author2 of alldata_crossref[doi].author) {
@@ -332,7 +332,12 @@ export class PlottingService {
       edges: edges
     }
     all_graph_data_array[tabName] = data;
-    this.plot_this(container, data, all_group_legend[tabName], tabName);
+    if (mainData == 'author') {
+      this.plot_this(container, data, all_group_legend[tabName], tabName, 'author');
+    } else {
+      this.plot_this(container, data, all_group_legend[tabName], tabName, 'doi');
+    }
+    
   }
 
   get_group(index: string, selection: String) {
@@ -380,7 +385,7 @@ export class PlottingService {
       edges: edges
     }
     all_graph_data_array[tabName] = data;
-    this.plot_this(container, data, legend, tabName);
+    this.plot_this(container, data, legend, tabName, 'doi');
 
 
     console.log(nodes);
@@ -431,10 +436,10 @@ export class PlottingService {
       edges: edges
     }
     all_graph_data_array[tabName] = data;
-    this.plot_this(container, data, all_group_legend[tabName], tabName);
+    this.plot_this(container, data, all_group_legend[tabName], tabName, 'doi');
   }
 
-  plot_this(container: any, data: any, group_legend: any, tabName: string) {
+  plot_this(container: any, data: any, group_legend: any, tabName: string, mainData: string) {
     all_graph_data[tabName] = {
       nodes: new vis.DataSet(data.nodes),
       edges: new vis.DataSet(data.edges)
@@ -456,11 +461,6 @@ export class PlottingService {
         size: 16
       },
       edges: {
-        // color: { inherit: true },
-        // width: 1,
-        // smooth: {
-        //   type: "continuous"
-        // },
         selfReferenceSize: 100
       },
       physics: {
@@ -482,6 +482,11 @@ export class PlottingService {
       },
       groups: group_legend
     };
+
+    if (mainData == 'author') {
+      options.nodes.scaling.max = 25;
+    }
+
     // if (+seed != 0) options.layout.randomSeed = Number(seed);
     var network = new vis.Network(container, all_graph_data[tabName], options);
     network.on("doubleClick", function(params) {
